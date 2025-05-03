@@ -18,65 +18,48 @@
                 <h1 class="brand-title">Jadwal Kuliah</h1>
             </div>
 
-            <div class="header-controls">
-                <div class="search-area">
-                     {/* Tombol untuk menampilkan/menyembunyikan input search */}
-                     <button id="searchToggleBtn" class="search-toggle-btn" aria-label="Toggle Search">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    {/* Wrapper untuk input search asli, disembunyikan default */}
-                    <div class="search-input-wrapper">
-                        <input type="text" id="searchInput" class="search-input" placeholder="Cari...">
-                    </div>
+            <div class="search-filter">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" class="search-input" placeholder="Cari mata kuliah, peserta...">
                 </div>
-
-                 {/* Filter Institusi */}
                 <select id="institutionFilter" class="institution-filter">
                     <option value="all">Semua Institusi</option>
-                    {/* Opsi filter dimuat oleh JavaScript */}
-                </select>
-
-                {/* Tombol Ganti Tema */}
-                <button id="themeToggle" class="theme-toggle" aria-label="Toggle Light/Dark Theme">
-                    <span class="theme-icon"></span>
-                </button>
+                    </select>
             </div>
+
+            <button id="themeToggle" class="theme-toggle" aria-label="Toggle Light/Dark Theme">
+                <span class="theme-icon"></span>
+            </button>
         </div>
     </header>
 
     <main class="main-content container">
-        {/* Indikator Loading */}
-        <div class="loading hidden" id="loading"> {/* Mulai tersembunyi */}
+        <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Memuat Jadwal...</p>
         </div>
 
-        {/* Grid Jadwal */}
         <section id="scheduleGrid" class="schedule-grid" aria-live="polite">
-            {/* Kartu jadwal dimuat oleh JavaScript */}
-        </section>
+            </section>
 
-        {/* Pesan State Kosong */}
-        <div class="empty-state hidden" id="emptyState"> {/* Mulai tersembunyi */}
+        <div class="empty-state" id="emptyState">
             <i class="fas fa-ghost empty-icon"></i>
             <h3>Oops! Jadwal tidak ditemukan</h3>
             <p>Coba kata kunci atau filter yang berbeda.</p>
         </div>
     </main>
 
-    {/* Modal Section */}
-    <div class="modal" id="genericModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display: none;"> {/* Mulai tersembunyi */}
+    <div class="modal" id="genericModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
         <div class="modal-overlay"></div>
         <div class="modal-content">
             <button class="close-modal" aria-label="Close modal">&times;</button>
             <h3 id="modalTitle" class="modal-title">Detail Jadwal</h3>
             <div class="modal-body" id="modalBody">
-                {/* Konten modal dimuat oleh JavaScript */}
-            </div>
+                </div>
         </div>
     </div>
 
-    {/* JavaScript */}
     <script src="app.js"></script>
 </body>
 </html>
