@@ -23,15 +23,12 @@
             </a>
 
             <div class="header-controls">
-                <div class="search-filter">
-                    <div class="search-container">
-                        <input type="text" id="searchInput" class="search-input" placeholder="Cari pelajaran, institusi, peserta...">
-                        <i class="fas fa-search search-icon"></i>
-                    </div>
-                    <select id="institutionFilter" class="institution-filter">
-                        <option value="all">Semua Institusi</option>
-                        </select>
-                </div>
+                 <select id="institutionFilter" class="institution-filter">
+                    <option value="all">Semua Institusi</option>
+                    </select>
+                 <button id="searchButton" class="icon-button search-button" aria-label="Buka pencarian">
+                    <i class="fas fa-search"></i>
+                </button>
                 <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
                     <span class="theme-icon"></span>
                 </button>
@@ -39,7 +36,30 @@
         </div>
     </header>
 
-    <main class="main-content container">
+    <div id="searchModal" class="search-modal">
+        <div class="search-modal-overlay"></div>
+        <div class="search-modal-content">
+            <button class="close-search-modal" aria-label="Tutup pencarian">&times;</button>
+            <h3>Cari Jadwal</h3>
+            <div class="search-modal-input-container">
+                <input type="text" id="searchModalInput" class="search-modal-input" placeholder="Ketik pelajaran, institusi, peserta...">
+                <i class="fas fa-search search-modal-icon"></i>
+            </div>
+        </div>
+    </div>
+
+
+    <main id="mainContent" class="main-content container view-grid"> {/* Add ID and default view class */}
+        <div class="view-controls">
+            <span class="view-label">Tampilan:</span>
+            <button id="viewGridButton" class="icon-button view-button active" data-view="grid" aria-label="Tampilan Grid">
+                <i class="fas fa-th-large"></i>
+            </button>
+            <button id="viewListButton" class="icon-button view-button" data-view="list" aria-label="Tampilan Daftar">
+                <i class="fas fa-list"></i>
+            </button>
+        </div>
+
         <div id="loading" class="loading">
              <div class="spinner"></div>
              <p>Memuat jadwal...</p>
@@ -48,7 +68,7 @@
         <div id="emptyState" class="empty-state hidden">
             </div>
 
-        <div id="scheduleGrid" class="schedule-grid">
+        <div id="scheduleGrid" class="schedule-grid"> {/* Class ini mungkin tidak perlu lagi jika parent yg di-styling */}
             </div>
     </main>
 
