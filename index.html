@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <!-- Stylesheet Utama (Minified) -->
+    <!-- FullCalendar CSS -->
+    <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.css' rel='stylesheet' />
     <link rel="stylesheet" href="styles.min.css">
 </head>
 <body>
@@ -39,8 +41,8 @@
                      <button id="viewGridButton" class="icon-button view-button" aria-label="Grid View">
                          <i class="fas fa-th-large"></i>
                      </button>
-                     <button id="viewListButton" class="icon-button view-button" aria-label="List View">
-                         <i class="fas fa-list"></i>
+                     <button id="viewCalendarButton" class="icon-button view-button" aria-label="Calendar View">
+                         <i class="fas fa-calendar-alt"></i>
                      </button>
                 </div>
             </div>
@@ -53,6 +55,9 @@
         <!-- Grid Jadwal -->
         <div id="scheduleGrid" class="schedule-grid">
             <!-- Kartu jadwal akan dirender di sini oleh JS -->
+        </div>
+        <!-- Container Kalender (Awalnya hidden) -->
+        <div id="calendarContainer" class="calendar-container hidden">
         </div>
 
         <!-- Status Loading -->
@@ -95,6 +100,8 @@
     </footer>
 
     <!-- Script Utama (di akhir body) (Minified) -->
+    <!-- FullCalendar JS -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/main.min.js'></script>
     <script src="app.min.js"></script>
 </body>
 </html>

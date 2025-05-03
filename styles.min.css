@@ -294,46 +294,12 @@ input[type="search"]::-webkit-search-cancel-button {
     /* Gaya default card sudah cocok untuk grid */
 }
 
-/* List View Specific */
-.main-container.view-list .schedule-grid {
-    display: flex; /* Ubah ke flexbox untuk list */
-    flex-direction: column;
-}
-.main-container.view-list .schedule-card {
-    display: flex;
-    flex-wrap: wrap; /* Agar bisa wrap di layar kecil */
-    align-items: center;
-    justify-content: space-between;
+/* Calendar View Specific */
+.calendar-container {
+    background-color: var(--color-surface); /* Optional: background for calendar area */
     padding: var(--spacing-md);
-}
-.main-container.view-list .card-header {
-    flex-basis: 60%; /* Ambil sebagian besar ruang */
-    margin-bottom: 0; /* Hapus margin bawah di list */
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline; /* Sejajarkan baseline judul & tanggal */
-    gap: var(--spacing-md);
-}
-.main-container.view-list .course-title {
-    margin-bottom: 0;
-    flex-grow: 1; /* Biarkan judul tumbuh */
-}
-.main-container.view-list .date-display {
-    white-space: nowrap; /* Jangan pecah tanggal */
-    font-size: 0.9em;
-}
-.main-container.view-list .institute {
-    flex-basis: 35%; /* Ambil sisa ruang */
-    text-align: right;
-    margin-bottom: 0;
-    font-size: 0.9em;
-    color: var(--color-text-muted);
-}
-.main-container.view-list .participants {
-    flex-basis: 100%; /* Ambil baris penuh */
-    margin-top: var(--spacing-sm);
-    border-top: 1px dashed var(--color-border);
-    padding-top: var(--spacing-sm);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
 }
 
 
@@ -624,17 +590,6 @@ html[data-theme="dark"] #themeToggle .light-icon { display: none; }
     .main-container {
         padding: 0 var(--spacing-md);
         margin-top: var(--spacing-md);
-    }
-    .main-container.view-list .card-header {
-        flex-basis: 100%; /* Header ambil baris penuh */
-        flex-direction: column; /* Tumpuk judul & tanggal */
-        align-items: flex-start; /* Rata kiri */
-        gap: var(--spacing-xs);
-    }
-    .main-container.view-list .institute {
-        flex-basis: 100%; /* Institusi ambil baris penuh */
-        text-align: left; /* Rata kiri */
-        margin-top: var(--spacing-sm);
     }
     .modal-content {
         width: 95%;
