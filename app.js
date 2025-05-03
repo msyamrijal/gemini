@@ -8,7 +8,7 @@ const elements = {
     scheduleGrid: document.getElementById('scheduleGrid'),
     loading: document.getElementById('loading'),
     emptyState: document.getElementById('emptyState'),
-    modal: document.getElementById('genericModal'),
+    modal: document.getElementById('genericModal'), // Detail modal
     modalTitle: document.getElementById('modalTitle'),
     modalBody: document.getElementById('modalBody'),
     closeModalBtn: document.querySelector('.close-modal'),
@@ -40,14 +40,14 @@ const initView = () => {
 
 const switchView = (newView, save = true) => {
     if (newView !== 'grid' && newView !== 'list') return; // Hanya grid atau list
+    if (!elements.mainContentContainer) return; // Pastikan container ada
 
     currentView = newView;
 
     // Update class pada container utama
-    if (elements.mainContentContainer) {
-        elements.mainContentContainer.classList.remove('view-grid', 'view-list');
-        elements.mainContentContainer.classList.add(`view-${currentView}`);
-    }
+    elements.mainContentContainer.classList.remove('view-grid', 'view-list');
+    elements.mainContentContainer.classList.add(`view-${currentView}`);
+
 
     // Update active state pada tombol
     if(elements.viewGridButton && elements.viewListButton){
@@ -60,7 +60,10 @@ const switchView = (newView, save = true) => {
     if (save) {
         localStorage.setItem('view', currentView);
     }
-    // Re-rendering tidak diperlukan jika CSS menangani perubahan tampilan
+    // Sesuaikan display grid/list setelah view berubah (jika perlu, misal setelah loading)
+    if (!initialLoad && elements.scheduleGrid) {
+         elements.scheduleGrid.style.display = currentView === 'list' ? 'flex' : 'grid';
+    }
 };
 
 // ======================
@@ -69,7 +72,10 @@ const switchView = (newView, save = true) => {
 const showSearchModal = () => {
     if (elements.searchModal) {
         elements.searchModal.classList.add('visible');
-        elements.searchModalInput.focus(); // Fokus ke input saat modal muncul
+        // Timeout kecil untuk memastikan transisi CSS dimulai sebelum fokus
+        setTimeout(() => {
+             if(elements.searchModalInput) elements.searchModalInput.focus();
+        }, 50);
         document.body.style.overflow = 'hidden'; // Cegah scroll background
     }
 };
@@ -77,7 +83,10 @@ const showSearchModal = () => {
 const hideSearchModal = () => {
     if (elements.searchModal) {
         elements.searchModal.classList.remove('visible');
-        document.body.style.overflow = ''; // Kembalikan scroll background
+         // Hanya kembalikan scroll jika modal detail tidak terbuka
+        if (!elements.modal || elements.modal.style.display === 'none') {
+             document.body.style.overflow = '';
+        }
     }
 };
 
@@ -85,7 +94,6 @@ const hideSearchModal = () => {
 // ======================
 // THEME MANAGEMENT
 // ======================
-// Dapatkan warna background dari CSS Variables (lebih dinamis)
 const getCssVariable = (variable) => getComputedStyle(document.documentElement).getPropertyValue(variable).trim();
 
 const initTheme = () => {
@@ -94,8 +102,9 @@ const initTheme = () => {
     updateThemeIcon(savedTheme);
 
     if (elements.themeOverlay) {
-        const targetBgColor = getCssVariable('--color-background'); // Ambil warna aktual
-        elements.themeOverlay.style.backgroundColor = targetBgColor;
+        // Set warna awal overlay sesuai tema yang di-load
+        const initialBgColor = getComputedStyle(document.documentElement).getPropertyValue('--color-background').trim();
+        elements.themeOverlay.style.backgroundColor = initialBgColor;
 
         if (savedTheme === 'dark') {
             elements.themeOverlay.style.transition = 'none';
@@ -109,19 +118,23 @@ const initTheme = () => {
 };
 
 const toggleTheme = () => {
-    if (!elements.themeOverlay) return;
+    if (!elements.themeOverlay || !elements.themeToggleBtn) return;
 
     const currentTheme = document.documentElement.getAttribute('data-theme');
     const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
 
     elements.themeToggleBtn.disabled = true;
 
-    // Tentukan warna overlay berdasarkan tema BARU (ambil dari variabel CSS setelah tema di set)
-    // Kita set atribut dulu, lalu ambil warnanya
-    const tempThemeForColor = newTheme === 'dark' ? 'dark' : 'light';
-    document.documentElement.dataset.tempTheme = tempThemeForColor; // Atribut sementara
-    const overlayColor = getCssVariable('--color-background');
-    delete document.documentElement.dataset.tempTheme; // Hapus atribut sementara
+    // --- Prediksi warna overlay ---
+    // Buat elemen sementara untuk membaca variabel CSS tema BARU
+    const tempDiv = document.createElement('div');
+    tempDiv.style.display = 'none'; // Jangan tampilkan
+    tempDiv.dataset.theme = newTheme; // Terapkan tema baru ke elemen sementara
+    document.body.appendChild(tempDiv); // Tambahkan ke DOM agar bisa baca computed style
+    const overlayColor = getComputedStyle(tempDiv).getPropertyValue('--color-background').trim();
+    document.body.removeChild(tempDiv); // Hapus elemen sementara
+    // --- End Prediksi warna overlay ---
+
 
     elements.themeOverlay.style.backgroundColor = overlayColor;
 
@@ -133,21 +146,23 @@ const toggleTheme = () => {
             localStorage.setItem('theme', newTheme);
             updateThemeIcon(newTheme);
             elements.themeToggleBtn.disabled = false;
-        }, 50);
+        }, 50); // Delay untuk sinkronisasi
 
-    } else {
+    } else { // Ke Light Mode
+        // Set tema dulu agar elemen lain mulai transisi warna di belakang overlay
         document.documentElement.setAttribute('data-theme', newTheme);
         localStorage.setItem('theme', newTheme);
         updateThemeIcon(newTheme);
+        // Baru mulai animasi overlay mengecil
         elements.themeOverlay.style.transform = 'translate(50%, -50%) scale(0)';
         setTimeout(() => {
              elements.themeToggleBtn.disabled = false;
-        }, 50);
+        }, 50); // Aktifkan tombol setelah delay
     }
 };
 
 const updateThemeIcon = (theme) => {
-    // Icon dihandle CSS
+    // Icon dihandle CSS via [data-theme]
 };
 
 // ======================
@@ -170,7 +185,7 @@ const fetchData = async () => {
             .filter(item => item.TanggalDate >= today)
             .sort((a, b) => a.TanggalDate - b.TanggalDate);
 
-        initFilters(); // Inisialisasi filter dropdown
+        initFilters(); // Inisialisasi filter dropdown & search input listener
         filterSchedules(); // Tampilkan data awal (tanpa filter search)
         attachDynamicListeners(); // Pasang listener dinamis utama
 
@@ -178,7 +193,7 @@ const fetchData = async () => {
         console.error('Fetch Error:', error);
         showError('Gagal memuat data jadwal. Periksa koneksi Anda atau coba lagi nanti.');
     } finally {
-        hideLoading();
+        hideLoading(); // Sembunyikan loading
         initialLoad = false;
     }
 };
@@ -191,21 +206,20 @@ const initFilters = () => {
     const institutions = [...new Set(allSchedules.map(item => item.Institusi))].sort((a, b) => a.localeCompare(b));
     const filterSelect = elements.institutionFilter;
     if (filterSelect) {
-        filterSelect.length = 1; // Keep only the default option
+        filterSelect.length = 1;
         institutions.forEach(inst => {
             const option = document.createElement('option');
             option.value = inst;
             option.textContent = inst;
             filterSelect.appendChild(option);
         });
-        // Pasang listener HANYA jika belum ada
         if (!filterSelect.dataset.listenerAttached) {
              filterSelect.addEventListener('change', filterSchedules);
              filterSelect.dataset.listenerAttached = 'true';
         }
     }
 
-     // Setup listener untuk input di search modal (HANYA jika belum ada)
+     // Setup listener untuk input di search modal
      if (elements.searchModalInput && !elements.searchModalInput.dataset.listenerAttached) {
         elements.searchModalInput.addEventListener('input', debounce(filterSchedules, 300));
         elements.searchModalInput.dataset.listenerAttached = 'true';
@@ -222,7 +236,7 @@ const filterSchedules = () => {
             item.Institusi,
             item.Mata_Pelajaran,
             item.Peserta.join(' '),
-            formatDate(item.Tanggal)
+            formatDate(item.Tanggal) // Sertakan tanggal terformat dalam pencarian
         ].join(' ').toLowerCase();
 
         const matchesSearch = searchTerm === '' || searchableText.includes(searchTerm);
@@ -235,34 +249,33 @@ const filterSchedules = () => {
 };
 
 // ======================
-// RENDERING (Tidak perlu diubah besar untuk view, CSS handle)
+// RENDERING
 // ======================
 const renderSchedules = (data) => {
     if (!elements.scheduleGrid) return;
-    elements.scheduleGrid.innerHTML = '';
+    elements.scheduleGrid.innerHTML = ''; // Kosongkan grid
 
     if (data.length === 0) {
-        showEmptyState();
-        hideLoading();
+        showEmptyState(); // Tampilkan pesan kosong
+        hideLoading(); // Pastikan loading hilang
         return;
     }
-    hideEmptyState();
-    hideLoading();
+    hideEmptyState(); // Sembunyikan pesan kosong
+    hideLoading(); // Pastikan loading hilang
 
     const fragment = document.createDocumentFragment();
     data.forEach(item => {
-        // createScheduleCard menghasilkan struktur HTML yang sama
-        // CSS akan menampilkannya berbeda berdasarkan view-grid/view-list
+        // Struktur card sama, tampilan diatur CSS
         const card = createScheduleCard(item);
         fragment.appendChild(card);
     });
-    elements.scheduleGrid.appendChild(fragment);
+    elements.scheduleGrid.appendChild(fragment); // Tambahkan semua sekaligus
 };
 
 const createScheduleCard = (item) => {
-    // Struktur HTML Kartu tetap sama, CSS yang membedakan tampilan list/grid
     const card = document.createElement('article');
     card.className = 'schedule-card';
+    // Gunakan data-* attribute untuk menyimpan nilai asli jika perlu
     card.innerHTML = `
         <div class="card-header">
             <h3 class="course-title clickable" data-value="${item.Mata_Pelajaran}" data-entity="Mata_Pelajaran">${item.Mata_Pelajaran}</h3>
@@ -281,8 +294,8 @@ const createScheduleCard = (item) => {
 // ======================
 // MODAL SYSTEM (Detail)
 // ======================
-// Fungsi showGenericModal, hideModal, generateModalContent tetap sama
 const showGenericModal = (title, data) => {
+    if (!elements.modal) return;
     elements.modalTitle.textContent = title;
     elements.modalBody.innerHTML = generateModalContent(data);
     elements.modal.style.display = 'block';
@@ -290,9 +303,8 @@ const showGenericModal = (title, data) => {
 };
 
 const hideModal = () => {
-    // Sembunyikan modal detail *dan* modal search jika terbuka
     if (elements.modal) elements.modal.style.display = 'none';
-    // Cek apakah search modal masih visible sebelum mengembalikan scroll
+    // Kembalikan scroll HANYA jika search modal juga tidak visible
     if (!elements.searchModal || !elements.searchModal.classList.contains('visible')) {
         document.body.style.overflow = '';
     }
@@ -302,12 +314,13 @@ const generateModalContent = (data) => {
     if (!data || data.length === 0) {
         return '<p class="no-data">Tidak ada data jadwal terkait yang ditemukan.</p>';
     }
-    const sortedData = data.sort((a,b) => new Date(a.Tanggal) - new Date(b.Tanggal));
+    // Urutkan data di modal berdasarkan tanggal
+    const sortedData = [...data].sort((a,b) => a.TanggalDate - b.TanggalDate); // Gunakan TanggalDate yg sudah Date object
     return sortedData.map(item => `
         <div class="modal-item">
             <div class="card-header">
                 <h4 class="course-title">${item.Mata_Pelajaran}</h4>
-                 <span class="date-display">${formatDate(item.Tanggal)}</span>
+                 <span class="date-display">${formatDate(item.TanggalDate)}</span> {/* Gunakan TanggalDate */}
             </div>
              <div class="modal-meta">
                 <span class="institute">${item.Institusi}</span>
@@ -323,29 +336,27 @@ const generateModalContent = (data) => {
 // EVENT HANDLERS
 // ======================
 const handleEntityClick = (element) => {
-    // Fungsi ini tetap sama, menangani klik pada entitas di kartu/modal detail
     const entityType = element.dataset.entity;
-    const value = element.dataset.value || element.textContent;
+    const value = element.dataset.value; // Selalu gunakan data-value
+    if (!entityType || value === undefined) return;
+
     let filterProperty = entityType;
     let modalTitlePrefix = '';
     let filteredData;
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const today = new Date(); today.setHours(0, 0, 0, 0);
 
     if (entityType === 'Peserta') {
         filteredData = allSchedules.filter(item => item.Peserta.includes(value) && item.TanggalDate >= today);
         modalTitlePrefix = `Jadwal mendatang untuk ${value}`;
     } else if (entityType === 'Tanggal') {
-         const clickedDate = new Date(value);
-         clickedDate.setHours(0,0,0,0);
+         const clickedDate = new Date(value); clickedDate.setHours(0,0,0,0);
          filteredData = allSchedules.filter(item =>
              item.TanggalDate.getFullYear() === clickedDate.getFullYear() &&
              item.TanggalDate.getMonth() === clickedDate.getMonth() &&
-             item.TanggalDate.getDate() === clickedDate.getDate() &&
-             item.TanggalDate >= today
+             item.TanggalDate.getDate() === clickedDate.getDate()
+             // && item.TanggalDate >= today // Tampilkan semua jadwal di hari itu
          );
-         modalTitlePrefix = `Jadwal pada ${formatDate(value)}`;
+         modalTitlePrefix = `Jadwal pada ${formatDate(clickedDate)}`; // Format tanggal yg diklik
     } else if (entityType === 'Mata_Pelajaran' || entityType === 'Institusi') {
         filteredData = allSchedules.filter(item => item[filterProperty] === value && item.TanggalDate >= today);
         modalTitlePrefix = `Jadwal mendatang untuk ${value}`;
@@ -354,46 +365,43 @@ const handleEntityClick = (element) => {
     showGenericModal(modalTitlePrefix, filteredData);
 };
 
-
-// Listener dinamis utama (event delegation)
 const attachDynamicListeners = () => {
+    // Hanya pasang listener utama sekali pada body
+     if (document.body.dataset.listenerAttached === 'true') return;
+
     document.body.addEventListener('click', (e) => {
         const target = e.target;
         const closestClickable = target.closest('.clickable[data-entity]');
         const closestCloseModal = target.closest('.close-modal');
         const closestCloseSearchModal = target.closest('.close-search-modal');
 
-        // Handle klik pada elemen 'clickable' di dalam kartu atau modal detail
-        if (closestClickable) {
+        if (closestClickable) { // Klik pada entitas (kartu/modal detail)
             handleEntityClick(closestClickable);
         }
-        // Handle penutupan modal detail
-        else if (target === elements.modalOverlay || closestCloseModal) {
+        else if (target === elements.modalOverlay || closestCloseModal) { // Tutup modal detail
              hideModal();
         }
-        // Handle penutupan modal search
-        else if (target === elements.searchModalOverlay || closestCloseSearchModal) {
+        else if (target === elements.searchModalOverlay || closestCloseSearchModal) { // Tutup modal search
             hideSearchModal();
         }
     });
 
-    // Listener escape key (global)
-     if (!window.escapeListenerAttached) {
-         window.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (elements.searchModal && elements.searchModal.classList.contains('visible')) {
-                    hideSearchModal();
-                } else if (elements.modal && elements.modal.style.display === 'block') {
-                    hideModal();
-                }
+    // Listener escape key global
+     window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            if (elements.searchModal && elements.searchModal.classList.contains('visible')) {
+                hideSearchModal();
+            } else if (elements.modal && elements.modal.style.display === 'block') {
+                hideModal();
             }
-        });
-        window.escapeListenerAttached = true;
-     }
+        }
+    });
+
+    document.body.dataset.listenerAttached = 'true'; // Tandai listener sudah terpasang
 };
 
 // ======================
-// UTILITIES (formatDate, showLoading, etc. tetap sama)
+// UTILITIES
 // ======================
 const formatDate = (dateStringOrDate) => {
     const date = (dateStringOrDate instanceof Date) ? dateStringOrDate : new Date(dateStringOrDate);
@@ -406,13 +414,12 @@ const formatDate = (dateStringOrDate) => {
     const options = { weekday: 'long', day: 'numeric', month: 'long', year: (inputDateOnly.getFullYear() !== today.getFullYear()) ? 'numeric' : undefined };
     return inputDateOnly.toLocaleDateString('id-ID', options);
 };
-const showLoading = () => { elements.loading.classList.remove('hidden'); elements.loading.style.display = 'flex'; elements.emptyState.classList.add('hidden'); elements.scheduleGrid.style.display = 'none'; };
-const hideLoading = () => { elements.loading.classList.add('hidden'); elements.loading.style.display = 'none'; elements.scheduleGrid.style.display = elements.mainContentContainer.classList.contains('view-list') ? 'flex' : 'grid'; }; // Adjust display based on view
-const showEmptyState = () => { elements.emptyState.classList.remove('hidden'); elements.emptyState.style.display = 'flex'; elements.scheduleGrid.style.display = 'none'; elements.emptyState.innerHTML = `<i class="fas fa-ghost empty-icon"></i><h3>Oops! Jadwal tidak ditemukan</h3><p>Coba kata kunci atau filter yang berbeda.</p>`; };
-const hideEmptyState = () => { elements.emptyState.classList.add('hidden'); elements.emptyState.style.display = 'none'; };
-const showError = (message = 'Terjadi kesalahan.') => { hideLoading(); elements.scheduleGrid.style.display = 'none'; elements.emptyState.classList.remove('hidden'); elements.emptyState.style.display = 'flex'; elements.emptyState.innerHTML = `<i class="fas fa-exclamation-triangle empty-icon" style="color: #e74c3c;"></i><h3>Terjadi Kesalahan</h3><p>${message}</p>`; };
+const showLoading = () => { if(elements.loading){elements.loading.classList.remove('hidden'); elements.loading.style.display = 'flex';} if(elements.emptyState) elements.emptyState.classList.add('hidden'); if(elements.scheduleGrid) elements.scheduleGrid.style.display = 'none'; };
+const hideLoading = () => { if(elements.loading){ elements.loading.classList.add('hidden'); elements.loading.style.display = 'none';} if(elements.scheduleGrid && elements.mainContentContainer) elements.scheduleGrid.style.display = elements.mainContentContainer.classList.contains('view-list') ? 'flex' : 'grid'; };
+const showEmptyState = () => { if(elements.emptyState){elements.emptyState.classList.remove('hidden'); elements.emptyState.style.display = 'flex';} if(elements.scheduleGrid) elements.scheduleGrid.style.display = 'none'; if(elements.emptyState) elements.emptyState.innerHTML = `<i class="fas fa-ghost empty-icon"></i><h3>Oops! Jadwal tidak ditemukan</h3><p>Coba kata kunci atau filter yang berbeda.</p>`; };
+const hideEmptyState = () => { if(elements.emptyState){ elements.emptyState.classList.add('hidden'); elements.emptyState.style.display = 'none';} };
+const showError = (message = 'Terjadi kesalahan.') => { hideLoading(); if(elements.scheduleGrid) elements.scheduleGrid.style.display = 'none'; if(elements.emptyState){ elements.emptyState.classList.remove('hidden'); elements.emptyState.style.display = 'flex'; elements.emptyState.innerHTML = `<i class="fas fa-exclamation-triangle empty-icon" style="color: #e74c3c;"></i><h3>Terjadi Kesalahan</h3><p>${message}</p>`; }};
 function debounce(func, wait) { let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); }; }
-
 
 // ======================
 // INITIALIZATION
@@ -420,19 +427,11 @@ function debounce(func, wait) { let timeout; return function executedFunction(..
 document.addEventListener('DOMContentLoaded', () => {
     initTheme(); // Inisialisasi tema
     initView();  // Inisialisasi view (grid/list)
-    fetchData(); // Ambil data & render awal
+    fetchData(); // Ambil data & render awal & pasang listener dinamis
 
     // --- Listener Statis ---
-    // Tombol Tema
     if(elements.themeToggleBtn) elements.themeToggleBtn.addEventListener('click', toggleTheme);
-    // Tombol Search Icon
     if(elements.searchButton) elements.searchButton.addEventListener('click', showSearchModal);
-    // Tombol Tutup Search Modal (jika ada di luar body delegation)
-    // if(elements.closeSearchModalBtn) elements.closeSearchModalBtn.addEventListener('click', hideSearchModal);
-    // if(elements.searchModalOverlay) elements.searchModalOverlay.addEventListener('click', hideSearchModal);
-    // Tombol View
     if(elements.viewGridButton) elements.viewGridButton.addEventListener('click', () => switchView('grid'));
     if(elements.viewListButton) elements.viewListButton.addEventListener('click', () => switchView('list'));
-
-    // Listener dinamis dipanggil di dalam fetchData()
 });
