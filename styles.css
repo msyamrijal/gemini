@@ -57,7 +57,12 @@ body {
     background-color: var(--color-background);
     color: var(--color-text);
     line-height: 1.7;
-    transition: background-color var(--transition), color var(--transition);
+    /* Transisi dasar untuk body (background diatur ulang di bawah untuk overlay)*/
+    transition: color var(--transition);
+    /* Untuk Theme Transition Overlay */
+    position: relative;
+    overflow-x: hidden; /* Hanya hidden sumbu x agar scroll y tetap bisa */
+    transition: background-color 0.8s ease-in-out, color var(--transition); /* Transisi bg disesuaikan */
 }
 
 .container {
@@ -67,7 +72,7 @@ body {
 }
 
 /* ====================== */
-/* HEADER STYLES */
+/* HEADER STYLES (Simplified) */
 /* ====================== */
 .header {
     background-color: var(--color-surface);
@@ -75,59 +80,67 @@ body {
     position: sticky;
     top: 0;
     z-index: 1000;
-    padding: 0.8rem 0; /* Increased padding */
-    border-bottom: 1px solid var(--color-border);
+    padding: 0.6rem 0;
+    /* border-bottom: 1px solid var(--color-border); */ /* Optional border */
     transition: background-color var(--transition), border-color var(--transition);
 }
 
 .header-top {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
-    gap: 1.5rem;
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    gap: 1rem;
+    /* Container applied inside the element */
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
 
 .brand {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.6rem;
     min-width: fit-content;
+    text-decoration: none;
 }
 
 .brand-icon {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: var(--color-primary);
 }
 
 .brand-title {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     font-weight: 600;
     color: var(--color-primary);
     margin: 0;
 }
 
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
 .search-filter {
     display: flex;
-    gap: 1rem;
+    gap: 0.8rem;
     align-items: center;
-    width: 100%;
-    max-width: 700px; /* Increased max-width */
-    margin: 0 auto; /* Center align */
 }
 
 .search-container {
     position: relative;
-    flex-grow: 1; /* Allow search to take more space */
+    min-width: 200px;
 }
 
 .search-input {
     width: 100%;
-    padding: 0.75rem 1rem 0.75rem 2.8rem; /* Adjusted padding for icon */
+    padding: 0.6rem 1rem 0.6rem 2.5rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background-color: var(--color-background); /* Use background color */
+    background-color: var(--color-background);
     color: var(--color-text);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-family: var(--font-primary);
     transition: var(--transition);
     outline: none;
@@ -140,17 +153,18 @@ body {
 
 .search-input:focus {
     border-color: var(--color-primary);
-    background-color: var(--color-surface); /* Slightly change bg on focus */
+    background-color: var(--color-surface);
     box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
 }
 
 .search-icon {
     position: absolute;
-    left: 1rem;
+    left: 0.8rem;
     top: 50%;
     transform: translateY(-50%);
     color: var(--color-text-muted);
     transition: color var(--transition);
+    pointer-events: none;
 }
 
 .search-input:focus + .search-icon {
@@ -161,21 +175,21 @@ body {
     background-color: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 1rem;
     color: var(--color-text);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     font-family: var(--font-primary);
     cursor: pointer;
     transition: var(--transition);
-    min-width: 180px; /* Adjust as needed */
-    flex-shrink: 0; /* Prevent shrinking */
+    min-width: 160px;
+    flex-shrink: 0;
     outline: none;
-    appearance: none; /* Remove default arrow */
+    appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%237F8C8D' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 1rem center;
-    background-size: 1em;
-    padding-right: 2.5rem; /* Space for custom arrow */
+    background-position: right 0.8rem center;
+    background-size: 0.9em;
+    padding-right: 2.2rem;
 }
 
 .institution-filter:hover {
@@ -201,24 +215,24 @@ body {
 
 .schedule-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); /* Slightly larger min size */
-    gap: 1.8rem; /* Increased gap */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.8rem;
     margin-top: 2rem;
 }
 
 .schedule-card {
     background-color: var(--color-surface);
-    border-radius: var(--radius-lg); /* More rounded corners */
-    padding: 1.8rem; /* Increased padding */
+    border-radius: var(--radius-lg);
+    padding: 1.8rem;
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--color-border);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color var(--transition), border-color var(--transition);
     display: flex;
     flex-direction: column;
 }
 
 .schedule-card:hover {
-    transform: translateY(-6px); /* Slightly more lift */
+    transform: translateY(-6px);
     box-shadow: var(--shadow-md);
     border-color: var(--color-accent);
 }
@@ -227,14 +241,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 0.8rem; /* Adjusted margin */
+    margin-bottom: 0.8rem;
     gap: 1rem;
 }
 
 .course-title {
     color: var(--color-primary);
-    font-size: 1.3rem; /* Increased size */
-    font-weight: 600; /* Bolder */
+    font-size: 1.3rem;
+    font-weight: 600;
     cursor: pointer;
     transition: color var(--transition);
     line-height: 1.4;
@@ -245,11 +259,11 @@ body {
 }
 
 .date-display {
-    background-color: rgba(var(--color-accent-rgb), 0.15); /* Use accent */
+    background-color: rgba(var(--color-accent-rgb), 0.15);
     color: var(--color-accent);
     padding: 0.4rem 0.8rem;
     border-radius: var(--radius-sm);
-    font-size: 0.85rem; /* Smaller date */
+    font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
@@ -262,10 +276,10 @@ body {
 }
 
 .institute {
-    color: var(--color-text-muted); /* Muted color */
+    color: var(--color-text-muted);
     font-weight: 500;
     font-size: 0.95rem;
-    margin-bottom: 1.2rem; /* Increased margin */
+    margin-bottom: 1.2rem;
     cursor: pointer;
     transition: color var(--transition);
 }
@@ -278,16 +292,17 @@ body {
     display: flex;
     flex-wrap: wrap;
     gap: 0.6rem;
-    margin-top: auto; /* Push tags to the bottom if card height varies */
-    padding-top: 1rem; /* Add some space above tags */
+    margin-top: auto;
+    padding-top: 1rem;
     border-top: 1px solid var(--color-secondary);
+    transition: border-color var(--transition);
 }
 
 .participant-tag {
     background-color: var(--color-secondary);
-    color: var(--color-text-muted); /* Muted text on tags */
-    padding: 0.3rem 0.9rem; /* Adjusted padding */
-    border-radius: var(--radius-lg); /* Pill shape */
+    color: var(--color-text-muted);
+    padding: 0.3rem 0.9rem;
+    border-radius: var(--radius-lg);
     font-size: 0.85rem;
     font-weight: 500;
     cursor: pointer;
@@ -306,11 +321,11 @@ body {
 /* MODAL STYLES */
 /* ====================== */
 .modal {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
-    inset: 0; /* Covers the entire viewport */
+    inset: 0;
     z-index: 2000;
-    overflow-y: auto; /* Allow scrolling if content overflows */
+    overflow-y: auto;
 }
 
 .modal-overlay {
@@ -325,13 +340,14 @@ body {
     position: relative;
     background-color: var(--color-surface);
     width: 90%;
-    max-width: 650px; /* Slightly wider */
-    margin: 3rem auto; /* Centered with top margin */
-    padding: 2rem 2.5rem; /* Increased padding */
+    max-width: 650px;
+    margin: 3rem auto;
+    padding: 2rem 2.5rem;
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
     animation: slideInUp 0.4s ease forwards;
-    z-index: 2001; /* Above overlay */
+    z-index: 2001;
+    transition: background-color var(--transition);
 }
 
 @keyframes fadeIn {
@@ -349,30 +365,31 @@ body {
     font-weight: 600;
     color: var(--color-primary);
     margin-bottom: 1.5rem;
-    padding-right: 2rem; /* Space for close button */
+    padding-right: 2rem;
+    transition: color var(--transition);
 }
 
 .modal-body {
-    max-height: 70vh; /* Limit height */
-    overflow-y: auto; /* Enable scrolling for body */
-    padding-right: 0.5rem; /* Space for scrollbar */
-    margin-right: -0.5rem; /* Offset scrollbar space */
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 0.5rem;
+    margin-right: -0.5rem;
 }
 
 .modal-item {
-    background-color: var(--color-background); /* Use background color for items */
+    background-color: var(--color-background);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1.2rem;
-    transition: border-color var(--transition);
+    transition: border-color var(--transition), background-color var(--transition);
 }
 
 .modal-item:last-child {
     margin-bottom: 0;
 }
 
-.modal-item .card-header { /* Reuse card header styles */
+.modal-item .card-header {
     margin-bottom: 0.5rem;
 }
 
@@ -384,14 +401,14 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem; /* Add gap */
+    gap: 1rem;
     margin-top: 0.8rem;
     margin-bottom: 1rem;
     font-size: 0.9rem;
 }
 
 .modal-meta .institute {
-    margin: 0; /* Reset margin */
+    margin: 0;
 }
 
 .modal-meta .date-display {
@@ -399,8 +416,8 @@ body {
     padding: 0.3rem 0.6rem;
 }
 
-.modal-item .participants { /* Reuse participant styles */
-    border-top: none; /* No border needed here */
+.modal-item .participants {
+    border-top: none;
     padding-top: 0;
 }
 
@@ -424,49 +441,31 @@ body {
     transform: rotate(90deg);
 }
 
-/* Scrollbar styling (optional, webkit only) */
-.modal-body::-webkit-scrollbar {
-    width: 8px;
-}
-.modal-body::-webkit-scrollbar-track {
-    background: var(--color-secondary);
-    border-radius: 4px;
-}
-.modal-body::-webkit-scrollbar-thumb {
-    background: var(--color-accent);
-    border-radius: 4px;
-}
-.modal-body::-webkit-scrollbar-thumb:hover {
-    background: var(--color-primary);
-}
+.modal-body::-webkit-scrollbar { width: 8px; }
+.modal-body::-webkit-scrollbar-track { background: var(--color-secondary); border-radius: 4px; }
+.modal-body::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 4px; }
+.modal-body::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
 
 /* ====================== */
 /* UTILITY STYLES */
 /* ====================== */
 .loading, .empty-state {
     text-align: center;
-    padding: 5rem 1rem; /* More padding */
+    padding: 5rem 1rem;
     color: var(--color-text-muted);
-    display: flex; /* Use flex for alignment */
+    display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.2rem; /* Space between icon, text */
-    min-height: 300px; /* Ensure minimum height */
+    gap: 1.2rem;
+    min-height: 300px;
     opacity: 0;
-    transition: opacity 0.5s ease;
+    transition: opacity 0.5s ease, color var(--transition);
 }
 
-.loading {
-    opacity: 1; /* Show loading by default if class is present */
-}
-.loading.hidden, .empty-state.hidden {
-    display: none;
-}
-#loading:not(.hidden), #emptyState:not(.hidden) {
-    opacity: 1;
-}
-
+.loading { opacity: 1; }
+.loading.hidden, .empty-state.hidden { display: none; }
+#loading:not(.hidden), #emptyState:not(.hidden) { opacity: 1; }
 
 .spinner {
     width: 3.5rem;
@@ -474,8 +473,9 @@ body {
     border: 4px solid var(--color-accent);
     border-radius: 50%;
     border-top-color: transparent;
-    border-right-color: transparent; /* Make it a partial spinner */
+    border-right-color: transparent;
     animation: spin 1s linear infinite;
+    transition: border-color var(--transition); /* Add transition */
 }
 
 @keyframes spin {
@@ -484,31 +484,26 @@ body {
 }
 
 .empty-state i {
-    font-size: 4rem; /* Larger icon */
+    font-size: 4rem;
     color: var(--color-accent);
+     transition: color var(--transition);
 }
 
 .empty-state h3 {
     font-size: 1.4rem;
-    color: var(--color-text); /* Use standard text color */
+    color: var(--color-text);
     font-weight: 600;
+     transition: color var(--transition);
 }
 
-.clickable {
-    cursor: pointer;
-}
-
-.no-data {
-    padding: 2rem;
-    text-align: center;
-    color: var(--color-text-muted);
-}
+.clickable { cursor: pointer; }
+.no-data { padding: 2rem; text-align: center; color: var(--color-text-muted); }
 
 /* ====================== */
 /* THEME TOGGLE BUTTON */
 /* ====================== */
 .theme-toggle {
-    width: 44px; /* Slightly larger */
+    width: 44px;
     height: 44px;
     border: 1px solid var(--color-border);
     border-radius: 50%;
@@ -531,9 +526,9 @@ body {
 
 .theme-icon {
     display: block;
-    width: 22px; /* Icon size */
+    width: 22px;
     height: 22px;
-    background-color: var(--color-primary); /* Icon color */
+    background-color: var(--color-primary);
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
@@ -546,105 +541,122 @@ body {
 
 [data-theme="dark"] .theme-icon {
     mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-3.51 1.713-6.622 4.368-8.522a.75.75 0 01.818.162z' clip-rule='evenodd'/%3E%3C/svg%3E");
-    transform: rotate(40deg); /* Small rotation for dark mode icon */
+    transform: rotate(40deg);
 }
+
+/* ====================== */
+/* THEME TRANSITION OVERLAY */
+/* ====================== */
+.theme-transition-overlay {
+    position: fixed;
+    /* Perkiraan posisi tengah tombol tema di header Anda */
+    /* Sesuaikan nilai top/right ini jika tombol tema tidak pas */
+    top: 32px; /* Sekitar (0.6rem padding / 2) + (44px height / 2) */
+    right: 38px; /* Sekitar (1rem container padding) + (44px width / 2) */
+    width: 44px; /* Samakan ukuran dengan tombol tema */
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--color-background); /* Mulai dengan warna bg saat ini */
+    transform-origin: center;
+    transform: translate(50%, -50%) scale(0); /* Mulai dari kecil */
+    pointer-events: none; /* Agar tidak menghalangi klik */
+    z-index: 3000; /* Pastikan di atas segalanya */
+    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.1s linear; /* Transisi untuk scale dan warna */
+}
+
+/* Saat transisi ke dark mode AKTIF */
+html[data-theme="dark"] .theme-transition-overlay {
+    /* Warna overlay menjadi warna target (dark background) */
+    background-color: #282C34; /* Warna --color-background dark mode */
+    transform: translate(50%, -50%) scale(100); /* Membesar menutupi layar */
+}
+
+/* Saat transisi ke light mode AKTIF */
+html[data-theme="light"] .theme-transition-overlay {
+     /* Warna overlay menjadi warna target (light background) */
+    background-color: #FDFCFB; /* Warna --color-background light mode */
+     /* Transform kembali ke scale(0) diatur via JS */
+}
+
 
 /* ====================== */
 /* RESPONSIVE DESIGN */
 /* ====================== */
 @media (max-width: 992px) {
-    .search-filter {
-        max-width: 550px;
-    }
+    /* Penyesuaian umum untuk layar tablet */
     .schedule-grid {
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+     /* Sesuaikan posisi overlay jika perlu */
+    .theme-transition-overlay {
+         /* Mungkin tidak perlu diubah jika header masih sticky */
     }
 }
 
 @media (max-width: 768px) {
-    html {
-        font-size: 15px; /* Slightly smaller base font on smaller screens */
-    }
+    html { font-size: 15px; }
+
     .header-top {
-        grid-template-columns: 1fr auto; /* Logo takes full width, toggle on right */
-        gap: 1rem;
-        padding: 1rem;
-    }
-    .brand-title {
-        font-size: 1.4rem;
-    }
-    .brand-icon {
-        font-size: 1.6rem;
-    }
-    .search-filter {
-        grid-row: 2 / 3; /* Move search/filter to the next row */
-        grid-column: 1 / 3; /* Span full width */
         flex-direction: column;
-        max-width: none;
+        align-items: stretch;
+        padding: 0.8rem 1rem;
+    }
+     .brand {
+        justify-content: center;
+        margin-bottom: 0.8rem;
+    }
+    .header-controls {
+        flex-direction: column;
+        width: 100%;
         gap: 0.8rem;
     }
-    .institution-filter {
+    .search-filter {
+        flex-direction: column;
         width: 100%;
+        gap: 0.8rem;
     }
-    .schedule-grid {
-        gap: 1.2rem;
-    }
-    .modal-content {
-        width: 95%;
-        padding: 1.5rem;
-        margin: 2rem auto;
-    }
-    .modal-title {
-        font-size: 1.4rem;
+    .search-container { width: 100%; min-width: auto; }
+    .institution-filter { width: 100%; min-width: auto; }
+
+    .schedule-grid { gap: 1.2rem; }
+    .modal-content { width: 95%; padding: 1.5rem; margin: 2rem auto; }
+    .modal-title { font-size: 1.4rem; }
+
+     /* Sesuaikan posisi overlay untuk layout mobile */
+     .theme-transition-overlay {
+         /* Posisi tombol berubah drastis, mungkin perlu re-evaluasi */
+         /* Contoh: Posisikan ulang berdasarkan tombol yang pindah */
+         top: 20px; /* Sesuaikan */
+         right: 20px; /* Sesuaikan */
     }
 }
 
 @media (max-width: 480px) {
-    html {
-        font-size: 14px;
-    }
-    .container {
-        padding: 0 0.8rem;
-    }
-    .header-top {
-        padding: 0.8rem;
-    }
-    .brand-title {
-        font-size: 1.25rem;
-    }
-    .schedule-card {
-        padding: 1.2rem;
-        border-radius: var(--radius-md);
-    }
-    .course-title {
-        font-size: 1.15rem;
-    }
-    .date-display {
-        font-size: 0.8rem;
-        padding: 0.3rem 0.6rem;
-    }
-    .participant-tag {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.7rem;
-    }
-    .modal-meta {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    .modal-content {
-         padding: 1.2rem 1rem;
-    }
-    .modal-title {
-         font-size: 1.3rem;
-         margin-bottom: 1rem;
-    }
+    html { font-size: 14px; }
+    .container { padding: 0 0.8rem; }
+    .header-top { padding: 0.8rem; }
+    .brand-title { font-size: 1.25rem; }
+    .schedule-card { padding: 1.2rem; border-radius: var(--radius-md); }
+    .course-title { font-size: 1.15rem; }
+    .date-display { font-size: 0.8rem; padding: 0.3rem 0.6rem; }
+    .participant-tag { font-size: 0.8rem; padding: 0.25rem 0.7rem; }
+    .modal-meta { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .modal-content { padding: 1.2rem 1rem; }
+    .modal-title { font-size: 1.3rem; margin-bottom: 1rem; }
+
     .theme-toggle {
         width: 40px;
         height: 40px;
+        align-self: flex-end;
+        margin-top: -48px; /* Sesuaikan jika perlu */
     }
-    .theme-icon {
-        width: 20px;
-        height: 20px;
+    .theme-icon { width: 20px; height: 20px; }
+
+    /* Sesuaikan lagi posisi overlay untuk 480px jika perlu */
+     .theme-transition-overlay {
+         top: 18px; /* Sesuaikan */
+         right: 18px; /* Sesuaikan */
+         width: 40px;
+         height: 40px;
     }
 }
