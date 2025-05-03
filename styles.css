@@ -1,717 +1,684 @@
-/* styles.css */
-/* ====================== */
-/* BASE STYLES & VARIABLES */
-/* ====================== */
+/* c:\Users\msyam\aihhh\gemini\styles.css */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ==================
+   VARIABEL WARNA & DASAR
+   ================== */
 :root {
-    /* Light Theme */
-    --color-primary: #5A9261;
-    --color-primary-dark: #47734C;
-    --color-secondary: #E8F0E9;
-    --color-accent: #A0C4A3;
-    --color-text: #212529; /* Slightly darker text */
-    --color-text-muted: #6c757d; /* Standard muted color */
-    --color-background: #FDFDFD; /* Even lighter background */
-    --color-surface: #FFFFFF;
-    --color-border: #dee2e6;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06); /* Softer shadow */
-    --shadow-md: 0 4px 10px rgba(0,0,0,0.08); /* Softer shadow */
-    --radius-sm: 0.25rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.8rem;
-    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    --font-primary: 'Poppins', sans-serif;
-    --color-primary-rgb: 90, 146, 97;
-    --color-accent-rgb: 160, 196, 163;
+    /* Tema Terang (Default) */
+    --color-background: #f4f7f6;
+    --color-surface: #ffffff;
+    --color-text: #333333;
+    --color-text-muted: #777777;
+    --color-primary: #007bff;
+    --color-primary-hover: #0056b3;
+    --color-border: #e0e0e0;
+    --color-overlay: rgba(0, 0, 0, 0.5);
+    --color-modal-bg: var(--color-surface);
+    --color-input-bg: #ffffff;
+    --color-input-border: #ced4da;
+    --color-button-bg: var(--color-primary);
+    --color-button-text: #ffffff;
+    --color-icon-button-hover-bg: rgba(0, 0, 0, 0.05);
+    --color-tag-bg: #e9ecef;
+    --color-tag-text: #495057;
+    --color-active-view-bg: #e0e0e0;
+
+    /* Ukuran & Spasi */
+    --spacing-xs: 4px;
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --spacing-lg: 24px;
+    --spacing-xl: 32px;
+    --border-radius: 8px;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --transition-speed: 0.3s;
+    --font-family-base: 'Poppins', sans-serif;
 }
 
-[data-theme="dark"] {
-    /* Dark Theme - High Contrast */
-    --color-primary: #80cbc4; /* Brighter teal primary */
-    --color-primary-dark: #4db6ac;
-    --color-secondary: #37474f; /* Dark blue-grey secondary */
-    --color-accent: #80cbc4; /* Use primary as accent or choose another bright color */
-    --color-text: #eceff1; /* Very light text (almost white) */
-    --color-text-muted: #90a4ae; /* Lighter muted text */
-    --color-background: #121212; /* Near black background */
-    --color-surface: #1E1E1E; /* Slightly lighter surface (cards, modals) */
-    --color-border: #455a64; /* Visible but not too bright border */
-    --shadow-sm: 0 2px 4px rgba(0,0,0,0.25); /* More pronounced shadow */
-    --shadow-md: 0 6px 12px rgba(0,0,0,0.3); /* More pronounced shadow */
-    --color-primary-rgb: 128, 203, 196;
-    --color-accent-rgb: 128, 203, 196; /* Match primary accent */
+html[data-theme="dark"] {
+    --color-background: #1a1a1a;
+    --color-surface: #2c2c2c;
+    --color-text: #e0e0e0;
+    --color-text-muted: #aaaaaa;
+    --color-primary: #4dabf7; /* Biru lebih terang */
+    --color-primary-hover: #2196f3;
+    --color-border: #444444;
+    --color-overlay: rgba(0, 0, 0, 0.7);
+    --color-modal-bg: #333333;
+    --color-input-bg: #3a3a3a;
+    --color-input-border: #555555;
+    --color-button-bg: var(--color-primary);
+    --color-button-text: #1a1a1a; /* Teks gelap di tombol terang */
+    --color-icon-button-hover-bg: rgba(255, 255, 255, 0.1);
+    --color-tag-bg: #444444;
+    --color-tag-text: #cccccc;
+    --color-active-view-bg: #555555;
 }
 
-
-* {
+/* ==================
+   RESET & GLOBAL
+   ================== */
+*, *::before, *::after {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
 }
 
 html {
     scroll-behavior: smooth;
-    font-size: 16px;
 }
 
 body {
-    font-family: var(--font-primary);
+    font-family: var(--font-family-base);
     background-color: var(--color-background);
     color: var(--color-text);
-    line-height: 1.7;
-    position: relative;
-    overflow-x: hidden;
-    transition: background-color 0.8s ease-in-out, color 0.3s ease; /* Adjusted timing */
+    line-height: 1.6;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: var(--spacing-md);
+    font-weight: 600;
+    color: inherit; /* Mewarisi warna dari parent */
 }
 
-/* ====================== */
-/* ICON BUTTON (Reusable) */
-/* ====================== */
+a {
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color var(--transition-speed) ease;
+}
+
+a:hover {
+    color: var(--color-primary-hover);
+    text-decoration: underline;
+}
+
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+button, input, select, textarea {
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit; /* Mewarisi warna teks */
+    border: 1px solid var(--color-input-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--color-input-bg);
+    transition: border-color var(--transition-speed) ease, background-color var(--transition-speed) ease;
+}
+
+button {
+    cursor: pointer;
+    background-color: var(--color-button-bg);
+    color: var(--color-button-text);
+    border: none;
+    font-weight: 500;
+    transition: background-color var(--transition-speed) ease, opacity var(--transition-speed) ease;
+}
+
+button:hover:not(:disabled) {
+    background-color: var(--color-primary-hover);
+    opacity: 0.9;
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right var(--spacing-md) center;
+    background-size: 1em;
+    padding-right: calc(var(--spacing-md) * 2.5); /* Ruang untuk ikon dropdown */
+}
+
+html[data-theme="dark"] select {
+     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23ccc' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+input[type="search"]::-webkit-search-cancel-button {
+    appearance: none; /* Sembunyikan tombol X default */
+}
+
 .icon-button {
     background: none;
-    border: 1px solid transparent; /* Default transparent border */
-    color: var(--color-text-muted);
-    padding: 0.5rem; /* Adjust padding */
-    border-radius: 50%; /* Make it circular */
-    width: 40px; /* Fixed size */
+    border: none;
+    padding: var(--spacing-sm);
+    color: var(--color-text);
+    font-size: 1.2em;
+    line-height: 1;
+    border-radius: 50%;
+    width: 40px;
     height: 40px;
-    display: inline-flex; /* Use inline-flex */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    cursor: pointer;
-    transition: var(--transition);
-    font-size: 1rem; /* Icon size */
-    line-height: 1; /* Ensure icon is centered */
 }
 
 .icon-button:hover {
-    color: var(--color-primary);
-    background-color: var(--color-secondary);
-    border-color: var(--color-border); /* Show border on hover */
+    background-color: var(--color-icon-button-hover-bg);
 }
 
-.icon-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.3);
+.hidden {
+    display: none !important; /* Paksa sembunyi */
+    visibility: hidden;
+    opacity: 0;
 }
 
-/* ====================== */
-/* HEADER STYLES (Revised) */
-/* ====================== */
-.header {
+.clickable {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+.clickable:hover {
+    opacity: 0.8;
+}
+
+/* ==================
+   HEADER & FOOTER
+   ================== */
+.site-header {
     background-color: var(--color-surface);
+    padding: var(--spacing-md) 0;
     box-shadow: var(--shadow-sm);
+    border-bottom: 1px solid var(--color-border);
     position: sticky;
     top: 0;
-    z-index: 1000;
-    padding: 0.5rem 0; /* Slightly reduced padding */
-    transition: background-color var(--transition), border-color var(--transition);
+    z-index: 100;
+    transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
 
-.header-top {
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 var(--spacing-lg);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 1rem;
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 1rem;
 }
 
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    min-width: fit-content;
-    text-decoration: none;
-}
-
-.brand-icon {
-    font-size: 1.6rem;
-    color: var(--color-primary);
-}
-
-.brand-title {
-    font-size: 1.4rem;
-    font-weight: 600;
-    color: var(--color-primary);
+.header-content h1 {
     margin: 0;
+    font-size: 1.5em;
+    font-weight: 600;
 }
 
 .header-controls {
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* Reduced gap */
+    gap: var(--spacing-sm);
 }
 
-/* Style for filter dropdown */
-.institution-filter {
-    background-color: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 0.5rem 0.8rem; /* Adjust padding */
-    color: var(--color-text);
-    font-size: 0.9rem;
-    font-family: var(--font-primary);
-    cursor: pointer;
-    transition: var(--transition);
-    min-width: 150px; /* Adjust width */
-    max-width: 200px; /* Add max-width */
-    height: 40px; /* Match button height */
-    flex-shrink: 0;
-    outline: none;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E"); /* Updated color */
-    background-repeat: no-repeat;
-    background-position: right 0.6rem center;
-    background-size: 0.8em;
-    padding-right: 2rem;
-}
-
-.institution-filter:hover {
-    border-color: var(--color-text-muted);
-}
-
-.institution-filter:focus {
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
-}
-
-[data-theme="dark"] .institution-filter {
-     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%2390a4ae' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E"); /* Updated dark color */
-}
-
-/* Style for search button */
-.search-button {
-    /* Uses .icon-button styles */
-}
-
-/* Theme toggle remains similar, adjust size slightly */
-.theme-toggle {
-    width: 40px;
-    height: 40px;
-    border: 1px solid var(--color-border);
-    border-radius: 50%;
-    background-color: var(--color-surface);
-    cursor: pointer;
-    display: grid;
-    place-items: center;
-    transition: var(--transition);
-    outline: none;
-}
-.theme-toggle:hover {
-    background-color: var(--color-secondary);
-    border-color: var(--color-text-muted);
-}
-.theme-toggle:focus {
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
-}
-.theme-icon { /* Icon inside theme toggle */
-    display: block;
-    width: 20px;
-    height: 20px;
-    background-color: var(--color-primary); /* Use primary color */
-    mask-size: contain;
-    mask-repeat: no-repeat;
-    mask-position: center;
-    transition: transform 0.4s ease, background-color var(--transition);
-}
-[data-theme="light"] .theme-icon { /* SVG for light mode icon */
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath d='M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5h2.25a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.166 7.758a.75.75 0 00-1.06 1.061l1.59 1.59a.75.75 0 001.061-1.06l-1.59-1.591z'/%3E%3C/svg%3E");
-}
-[data-theme="dark"] .theme-icon { /* SVG for dark mode icon */
-    mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='currentColor'%3E%3Cpath fill-rule='evenodd' d='M9.528 1.718a.75.75 0 01.162.819A8.97 8.97 0 009 6a9 9 0 009 9 8.97 8.97 0 003.463-.69.75.75 0 01.981.98 10.503 10.503 0 01-9.694 6.46c-5.799 0-10.5-4.701-10.5-10.5 0-3.51 1.713-6.622 4.368-8.522a.75.75 0 01.818.162z' clip-rule='evenodd'/%3E%3C/svg%3E");
-    transform: rotate(40deg);
-}
-
-
-/* ====================== */
-/* SEARCH MODAL STYLES */
-/* ====================== */
-.search-modal {
-    display: none; /* Hidden by default */
-    position: fixed;
-    inset: 0;
-    z-index: 2500; /* Below theme overlay, above generic modal */
-    align-items: flex-start; /* Align content to top */
-    justify-content: center;
-    padding-top: 15vh; /* Position below header */
-}
-
-.search-modal.visible {
-    display: flex; /* Show when visible */
-}
-
-.search-modal-overlay {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(3px);
-    animation: fadeIn 0.3s ease forwards;
-    z-index: 2501;
-}
-
-.search-modal-content {
-    position: relative;
-    background-color: var(--color-surface);
-    width: 90%;
-    max-width: 500px;
-    padding: 1.5rem 2rem;
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-md);
-    z-index: 2502;
-    animation: slideInDown 0.4s ease forwards; /* Different animation */
-    transition: background-color var(--transition);
-}
-
-@keyframes slideInDown {
-    from { transform: translateY(-30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-}
-
-
-.search-modal-content h3 {
-    margin-bottom: 1.5rem;
-    color: var(--color-primary);
-    font-weight: 600;
-    text-align: center;
-}
-
-.close-search-modal {
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    font-size: 1.8rem;
-    font-weight: 300;
-    line-height: 1;
-    cursor: pointer;
-    color: var(--color-text-muted);
-    background: none;
-    border: none;
-    padding: 0.2rem;
-    transition: var(--transition);
-}
-
-.close-search-modal:hover {
-    color: var(--color-primary);
-    transform: rotate(90deg);
-}
-
-.search-modal-input-container {
-    position: relative;
-}
-
-.search-modal-input {
-    width: 100%;
-    padding: 0.8rem 1rem 0.8rem 2.8rem; /* Padding for icon */
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+.header-button {
     background-color: var(--color-background);
     color: var(--color-text);
-    font-size: 1rem;
-    font-family: var(--font-primary);
-    transition: var(--transition);
-    outline: none;
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
 }
-
-.search-modal-input::placeholder {
-    color: var(--color-text-muted);
-    opacity: 0.8;
-}
-
-.search-modal-input:focus {
-    border-color: var(--color-primary);
-    background-color: var(--color-surface);
-    box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.2);
-}
-
-.search-modal-icon {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--color-text-muted);
-    transition: color var(--transition);
-    pointer-events: none;
-}
-
-.search-modal-input:focus + .search-modal-icon {
-    color: var(--color-primary);
-}
-
-
-/* ====================== */
-/* MAIN CONTENT & VIEW CONTROLS */
-/* ====================== */
-.main-content {
-    padding-top: 2rem; /* Adjusted padding */
-    padding-bottom: 3rem;
+.header-button:hover {
+    background-color: var(--color-icon-button-hover-bg);
 }
 
 .view-controls {
     display: flex;
     align-items: center;
-    justify-content: flex-end; /* Position to the right */
-    gap: 0.5rem;
-    margin-bottom: 1.5rem;
-}
-
-.view-label {
-    font-size: 0.9rem;
-    color: var(--color-text-muted);
-    margin-right: 0.5rem;
+    background-color: var(--color-background);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-xs);
+    margin-left: var(--spacing-sm);
 }
 
 .view-button {
-    /* Uses .icon-button styles */
+    padding: var(--spacing-xs) var(--spacing-sm);
+    width: auto;
+    height: auto;
+    font-size: 1em;
+    border-radius: calc(var(--border-radius) - var(--spacing-xs)); /* Sedikit lebih kecil */
 }
 
 .view-button.active {
-    color: var(--color-surface);
-    background-color: var(--color-primary);
-    border-color: var(--color-primary-dark);
+    background-color: var(--color-active-view-bg);
+    color: var(--color-text); /* Pastikan kontras */
+}
+.view-button:not(.active):hover {
+    background-color: var(--color-icon-button-hover-bg);
 }
 
 
-/* ====================== */
-/* SCHEDULE GRID/LIST STYLES */
-/* ====================== */
-
-/* Default Grid View (Targeting the container) */
-.main-content.view-grid #scheduleGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Adjusted minmax */
-    gap: 1.5rem; /* Adjusted gap */
+.site-footer {
+    background-color: var(--color-surface);
+    color: var(--color-text-muted);
+    text-align: center;
+    padding: var(--spacing-lg);
+    margin-top: auto; /* Dorong ke bawah */
+    border-top: 1px solid var(--color-border);
+    transition: background-color var(--transition-speed) ease, border-color var(--transition-speed) ease, color var(--transition-speed) ease;
 }
 
-/* List View (Targeting the container) */
-.main-content.view-list #scheduleGrid {
-    display: flex;
+/* ==================
+   MAIN CONTENT & GRID/LIST
+   ================== */
+.main-container {
+    max-width: 1200px;
+    margin: var(--spacing-lg) auto;
+    padding: 0 var(--spacing-lg);
+    flex-grow: 1; /* Ambil sisa ruang */
+    width: 100%;
+}
+
+.schedule-grid {
+    display: grid; /* Default grid */
+    gap: var(--spacing-lg);
+    transition: display 0s; /* Cegah transisi display */
+}
+
+/* Grid View Specific */
+.main-container.view-grid .schedule-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+.main-container.view-grid .schedule-card {
+    /* Gaya default card sudah cocok untuk grid */
+}
+
+/* List View Specific */
+.main-container.view-list .schedule-grid {
+    display: flex; /* Ubah ke flexbox untuk list */
     flex-direction: column;
-    gap: 0.75rem; /* Smaller gap for list */
+}
+.main-container.view-list .schedule-card {
+    display: flex;
+    flex-wrap: wrap; /* Agar bisa wrap di layar kecil */
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-md);
+}
+.main-container.view-list .card-header {
+    flex-basis: 60%; /* Ambil sebagian besar ruang */
+    margin-bottom: 0; /* Hapus margin bawah di list */
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline; /* Sejajarkan baseline judul & tanggal */
+    gap: var(--spacing-md);
+}
+.main-container.view-list .course-title {
+    margin-bottom: 0;
+    flex-grow: 1; /* Biarkan judul tumbuh */
+}
+.main-container.view-list .date-display {
+    white-space: nowrap; /* Jangan pecah tanggal */
+    font-size: 0.9em;
+}
+.main-container.view-list .institute {
+    flex-basis: 35%; /* Ambil sisa ruang */
+    text-align: right;
+    margin-bottom: 0;
+    font-size: 0.9em;
+    color: var(--color-text-muted);
+}
+.main-container.view-list .participants {
+    flex-basis: 100%; /* Ambil baris penuh */
+    margin-top: var(--spacing-sm);
+    border-top: 1px dashed var(--color-border);
+    padding-top: var(--spacing-sm);
 }
 
-/* Card styles apply to both views unless overridden */
+
+/* ==================
+   SCHEDULE CARD
+   ================== */
 .schedule-card {
     background-color: var(--color-surface);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem; /* Standard padding */
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--color-border);
-    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color var(--transition), border-color var(--transition);
-    /* display: flex; - Remove this, let parent control direction */
-    /* flex-direction: column; - Remove this */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background-color var(--transition-speed) ease, border-color var(--transition-speed) ease;
 }
-/* Hover effect for both views */
+
 .schedule-card:hover {
-    transform: translateY(-4px); /* Slightly less lift */
+    transform: translateY(-3px);
     box-shadow: var(--shadow-md);
-    border-color: var(--color-accent);
 }
 
-/* Styles specific to GRID view cards (Default) */
-.main-content.view-grid .schedule-card {
-    display: flex;
-    flex-direction: column;
-    min-height: 180px; /* Ensure minimum height for grid */
-}
-.main-content.view-grid .participants {
-    margin-top: auto; /* Push tags down in grid view */
-    padding-top: 1rem;
-    border-top: 1px solid var(--color-secondary);
-     transition: border-color var(--transition); /* Add transition */
-}
-
-/* Styles specific to LIST view cards */
-.main-content.view-list .schedule-card {
-    display: flex;
-    flex-direction: row; /* Arrange items horizontally */
-    align-items: center; /* Vertically align items */
-    justify-content: space-between; /* Space out content */
-    padding: 1rem 1.5rem; /* Adjust padding for list */
-    border-radius: var(--radius-md); /* Slightly less round */
-    width: 100%; /* Take full width */
-}
-
-.main-content.view-list .card-header {
-    flex-grow: 1; /* Allow header to take space */
-    margin-bottom: 0; /* No margin needed */
-    padding-right: 1rem; /* Space before institute/tags */
-    /* Override flex settings if needed */
-    display: flex;
-    flex-direction: column; /* Stack title and date vertically */
-    align-items: flex-start;
-    gap: 0.1rem;
-}
-
-.main-content.view-list .course-title {
-    font-size: 1.1rem; /* Adjust size */
-}
-
-.main-content.view-list .date-display {
-    font-size: 0.8rem;
-    padding: 0.2rem 0.6rem;
-    background: none; /* Remove background */
-    color: var(--color-text-muted); /* Muted color */
-    /* position: static; Remove positioning */
-    white-space: normal; /* Allow wrapping */
-}
-
-.main-content.view-list .institute {
-    margin-bottom: 0; /* Remove margin */
-    font-size: 0.9rem;
-    flex-shrink: 0; /* Prevent shrinking */
-    width: 150px; /* Give fixed width */
-    text-align: left; /* Align left */
-    padding-right: 1rem;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.main-content.view-list .participants {
-    margin-top: 0; /* Remove margin */
-    padding-top: 0;
-    border-top: none; /* Remove border */
-    flex-shrink: 0; /* Prevent shrinking */
-    max-width: 200px; /* Limit width */
-    overflow: hidden; /* Hide overflow */
-    display: -webkit-box; /* Truncate tags if too many */
-     -webkit-line-clamp: 1;
-     -webkit-box-orient: vertical;
-     gap: 0.4rem; /* Smaller gap */
-}
-
-.main-content.view-list .participant-tag {
-    font-size: 0.75rem;
-    padding: 0.2rem 0.5rem;
-}
-.main-content.view-list .participant-tag:hover{
-    transform: none; /* Disable hover transform in list */
-    box-shadow: none;
-}
-
-
-/* Other shared styles like .card-header, .course-title, etc. might need minor adjustments */
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 0.8rem;
-    gap: 1rem;
+    align-items: flex-start; /* Agar tanggal tidak naik jika judul panjang */
+    margin-bottom: var(--spacing-sm);
+    gap: var(--spacing-md);
 }
-/* ... (rest of card element styles remain similar, applied based on context) ... */
-.participants { /* Shared styles */
+
+.course-title {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    color: var(--color-text); /* Pastikan warna teks utama */
+}
+
+.date-display {
+    font-size: 0.9em;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    flex-shrink: 0; /* Jangan biarkan tanggal menyusut */
+}
+
+.institute {
+    font-size: 1em;
+    color: var(--color-primary);
+    margin-bottom: var(--spacing-md);
+    font-weight: 500;
+}
+
+.participants {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.6rem;
-    transition: border-color var(--transition); /* Add transition */
-}
-.participant-tag { /* Shared styles */
-    background-color: var(--color-secondary);
-    color: var(--color-text-muted);
-    padding: 0.3rem 0.9rem;
-    border-radius: var(--radius-lg);
-    font-size: 0.85rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-    border: 1px solid transparent;
-}
-.participant-tag:hover { /* Shared hover */
-    background-color: var(--color-primary);
-    color: var(--color-surface);
-    transform: translateY(-2px);
-    box-shadow: 0 2px 4px rgba(var(--color-primary-rgb), 0.2);
+    gap: var(--spacing-sm);
+    margin-top: var(--spacing-md);
 }
 
+.participant-tag {
+    background-color: var(--color-tag-bg);
+    color: var(--color-tag-text);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: calc(var(--border-radius) / 2);
+    font-size: 0.85em;
+    transition: background-color var(--transition-speed) ease, color var(--transition-speed) ease;
+}
 
-/* ====================== */
-/* MODAL STYLES (Detail) */
-/* ====================== */
-.modal { /* Detail Modal */
-    display: none;
+/* ==================
+   MODAL SYSTEM (Generic & Search)
+   ================== */
+.modal {
+    display: none; /* Default tersembunyi */
     position: fixed;
-    inset: 0;
-    z-index: 2000;
-    overflow-y: auto;
+    inset: 0; /* top, right, bottom, left = 0 */
+    z-index: 1000;
+    overflow-y: auto; /* Scroll jika konten panjang */
 }
+
+.modal.visible {
+    display: block; /* Tampilkan modal pencarian */
+}
+
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s ease forwards;
+    background-color: var(--color-overlay);
+    animation: fadeIn 0.3s ease-out forwards;
 }
+
 .modal-content {
     position: relative;
-    background-color: var(--color-surface);
-    width: 90%;
-    max-width: 650px;
-    margin: 3rem auto;
-    padding: 2rem 2.5rem;
-    border-radius: var(--radius-lg);
+    background-color: var(--color-modal-bg);
+    margin: 10vh auto; /* Jarak dari atas & tengah horizontal */
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius);
+    max-width: 600px; /* Lebar default modal detail */
+    width: 90%; /* Responsif */
     box-shadow: var(--shadow-md);
-    animation: slideInUp 0.4s ease forwards;
-    z-index: 2001;
-    transition: background-color var(--transition);
+    z-index: 1001;
+    animation: slideInUp 0.4s ease-out forwards;
+    transition: background-color var(--transition-speed) ease;
 }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideInUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 
-.modal-title {
-    font-size: 1.6rem;
-    font-weight: 600;
-    color: var(--color-primary);
-    margin-bottom: 1.5rem;
-    padding-right: 2rem;
-    transition: color var(--transition);
+.search-modal-content {
+    max-width: 500px; /* Modal search lebih kecil */
+    padding: var(--spacing-lg);
 }
-.modal-body {
-    max-height: 70vh;
-    overflow-y: auto;
-    padding-right: 0.5rem;
-    margin-right: -0.5rem;
-}
-.modal-item {
-    background-color: var(--color-background);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: 1.5rem;
-    margin-bottom: 1.2rem;
-    transition: border-color var(--transition), background-color var(--transition);
-}
-.modal-item:last-child { margin-bottom: 0; }
-.modal-item .card-header { margin-bottom: 0.5rem; }
-.modal-item .course-title { font-size: 1.2rem; }
-.modal-meta { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.8rem; margin-bottom: 1rem; font-size: 0.9rem; }
-.modal-meta .institute { margin: 0; }
-.modal-meta .date-display { font-size: 0.8rem; padding: 0.3rem 0.6rem; }
-.modal-item .participants { border-top: none; padding-top: 0; }
-.close-modal {
-    position: absolute; right: 1.5rem; top: 1.5rem; font-size: 2rem; font-weight: 300; line-height: 1; cursor: pointer; color: var(--color-text-muted); background: none; border: none; padding: 0.2rem; transition: var(--transition);
-}
-.close-modal:hover { color: var(--color-primary); transform: rotate(90deg); }
-.modal-body::-webkit-scrollbar { width: 8px; }
-.modal-body::-webkit-scrollbar-track { background: var(--color-secondary); border-radius: 4px; }
-.modal-body::-webkit-scrollbar-thumb { background: var(--color-accent); border-radius: 4px; }
-.modal-body::-webkit-scrollbar-thumb:hover { background: var(--color-primary); }
 
-/* ====================== */
-/* UTILITY STYLES */
-/* ====================== */
-.loading, .empty-state {
+.search-modal-content h2 {
+    margin-bottom: var(--spacing-lg);
     text-align: center;
-    padding: 5rem 1rem;
+}
+
+#searchModalInput {
+    width: 100%;
+    font-size: 1.1em;
+    margin-bottom: var(--spacing-md); /* Jarak bawah jika ada hasil di modal */
+}
+
+.close-modal,
+.close-search-modal {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    font-size: 1.5em; /* Ukuran X lebih besar */
+    width: 30px;
+    height: 30px;
+    padding: 0; /* Hapus padding agar pas */
+}
+
+.modal-body-content {
+    margin-top: var(--spacing-lg);
+    max-height: 60vh; /* Batasi tinggi konten modal detail */
+    overflow-y: auto; /* Scroll jika perlu */
+    padding-right: var(--spacing-sm); /* Ruang untuk scrollbar */
+}
+
+.modal-item {
+    border-bottom: 1px solid var(--color-border);
+    padding: var(--spacing-md) 0;
+    transition: border-color var(--transition-speed) ease;
+}
+.modal-item:last-child {
+    border-bottom: none;
+}
+.modal-item .card-header { margin-bottom: var(--spacing-xs); }
+.modal-item .course-title { font-size: 1.1em; margin-bottom: 0; }
+.modal-item .date-display { font-size: 0.85em; }
+.modal-meta { margin-bottom: var(--spacing-sm); }
+.modal-meta .institute { font-size: 0.9em; color: var(--color-text-muted); margin-bottom: 0; }
+.modal-item .participants { margin-top: var(--spacing-sm); }
+.modal-item .participant-tag { font-size: 0.8em; }
+.no-data {
+    text-align: center;
     color: var(--color-text-muted);
-    display: flex;
+    padding: var(--spacing-lg) 0;
+}
+
+/* Animasi Modal */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+@keyframes slideInUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideOutDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(50px); opacity: 0; } }
+
+/* Keluar animasi (jika diperlukan, biasanya handle via JS) */
+.modal.hiding .modal-overlay { animation: fadeOut 0.3s ease-in forwards; }
+.modal.hiding .modal-content { animation: slideOutDown 0.4s ease-in forwards; }
+
+/* ==================
+   FILTER DROPDOWN (HEADER)
+   ================== */
+.filter-dropdown-container {
+    position: relative; /* Anchor for the dropdown menu */
+}
+
+#filterButton .dropdown-icon {
+    font-size: 0.8em;
+    transition: transform 0.2s ease-in-out;
+}
+
+#filterButton[aria-expanded="true"] .dropdown-icon {
+    transform: rotate(180deg);
+}
+
+.filter-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 4px); /* Position below the button */
+    left: 0;
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-md);
+    z-index: 110; /* Above header content, below modals */
+    min-width: 200px; /* Minimum width */
+    max-height: 300px; /* Limit height */
+    overflow-y: auto; /* Add scroll if needed */
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
+    pointer-events: none; /* Initially not interactive */
+}
+
+.filter-dropdown-menu:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto; /* Make interactive when visible */
+}
+
+.filter-dropdown-menu button {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: var(--spacing-sm) var(--spacing-md);
+    color: var(--color-text);
+    font-weight: 400; /* Reset button default bold */
+}
+
+.filter-dropdown-menu button:hover {
+    background-color: var(--color-icon-button-hover-bg);
+}
+
+.filter-dropdown-menu button.active {
+    font-weight: 600; /* Highlight active filter */
+    color: var(--color-primary);
+}
+
+/* ==================
+   THEME TOGGLE
+   ================== */
+#themeToggle .dark-icon { display: none; }
+#themeToggle .light-icon { display: inline-block; }
+
+html[data-theme="dark"] #themeToggle .dark-icon { display: inline-block; }
+html[data-theme="dark"] #themeToggle .light-icon { display: none; }
+
+/* ==================
+   LOADING, EMPTY, ERROR STATES
+   ================== */
+.status-indicator {
+    display: flex; /* Default flex, diatur oleh JS/CSS */
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1.2rem;
-    min-height: 300px;
-    opacity: 0;
-    transition: opacity 0.5s ease, color var(--transition);
+    text-align: center;
+    padding: var(--spacing-xl) var(--spacing-lg);
+    min-height: 300px; /* Beri tinggi agar tidak lompat */
+    color: var(--color-text-muted);
+    width: 100%; /* Ambil lebar penuh kontainer */
 }
-.loading { opacity: 1; }
-.loading.hidden, .empty-state.hidden { display: none; }
-#loading:not(.hidden), #emptyState:not(.hidden) { opacity: 1; }
+
 .spinner {
-    width: 3.5rem;
-    height: 3.5rem;
-    border: 4px solid var(--color-accent);
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: var(--color-primary);
     border-radius: 50%;
-    border-top-color: transparent;
-    border-right-color: transparent;
-    animation: spin 1s linear infinite;
-    transition: border-color var(--transition); /* Add transition */
-}
-@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-.empty-state i { font-size: 4rem; color: var(--color-accent); transition: color var(--transition); }
-.empty-state h3 { font-size: 1.4rem; color: var(--color-text); font-weight: 600; transition: color var(--transition); }
-.clickable { cursor: pointer; }
-.no-data { padding: 2rem; text-align: center; color: var(--color-text-muted); }
-
-
-/* ====================== */
-/* THEME TRANSITION OVERLAY */
-/* ====================== */
-.theme-transition-overlay {
-    position: fixed;
-    top: 28px; /* Adjusted for new header padding & button size */
-    right: 30px; /* Adjusted for button size/position */
-    width: 40px; /* Match button size */
+    width: 40px;
     height: 40px;
-    border-radius: 50%;
-    background-color: var(--color-background); /* Use variable */
-    transform-origin: center;
-    transform: translate(50%, -50%) scale(0);
-    pointer-events: none;
-    z-index: 3000;
-    transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.1s linear;
-}
-html[data-theme="dark"] .theme-transition-overlay {
-    background-color: var(--color-background); /* Use dark variable */
-    transform: translate(50%, -50%) scale(100);
-}
-html[data-theme="light"] .theme-transition-overlay {
-    background-color: var(--color-background); /* Use light variable */
-     /* Scale is handled by JS */
+    animation: spin 1s linear infinite;
+    margin-bottom: var(--spacing-md);
 }
 
-
-/* ====================== */
-/* RESPONSIVE DESIGN */
-/* ====================== */
-@media (max-width: 992px) {
-     .main-content.view-list .institute { width: 120px; }
-     .main-content.view-list .participants { max-width: 150px; }
-     .theme-transition-overlay { /* Adjust if needed */ }
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
+.empty-icon {
+    font-size: 3em;
+    margin-bottom: var(--spacing-md);
+    color: var(--color-text-muted); /* Default icon color */
+}
+
+.status-indicator h3 {
+    font-size: 1.3em;
+    color: var(--color-text); /* Judul lebih jelas */
+    margin-bottom: var(--spacing-sm);
+}
+
+.status-indicator p {
+    max-width: 400px;
+}
+
+/* ==================
+   RESPONSIVE DESIGN
+   ================== */
 @media (max-width: 768px) {
-    html { font-size: 15px; }
-    .header-top { flex-direction: column; align-items: stretch; padding: 0.8rem 1rem; }
-    .brand { justify-content: center; margin-bottom: 0.8rem; }
-    .header-controls { justify-content: space-between; width: 100%; gap: 0.8rem; }
-    .institution-filter { min-width: 180px; flex-grow: 1; }
-    .view-controls { justify-content: flex-start; margin-bottom: 1rem; }
-    .modal-content { width: 95%; padding: 1.5rem; margin: 2rem auto; }
-    .modal-title { font-size: 1.4rem; }
-    .main-content.view-list .schedule-card { flex-direction: column; align-items: stretch; gap: 0.5rem; padding: 1rem;}
-    .main-content.view-list .card-header { padding-right: 0; }
-    .main-content.view-list .institute { width: auto; text-align: left; padding-right: 0; margin-top: 0.5rem; white-space: normal;}
-    .main-content.view-list .participants { max-width: none; -webkit-line-clamp: unset; margin-top: 0.5rem;}
-    .theme-transition-overlay { top: 20px; right: 20px; } /* Re-evaluate position */
-     .search-modal-content { max-width: 90%; }
+    .header-content h1 {
+        font-size: 1.2em;
+    }
+    .main-container {
+        padding: 0 var(--spacing-md);
+        margin-top: var(--spacing-md);
+    }
+    .main-container.view-list .card-header {
+        flex-basis: 100%; /* Header ambil baris penuh */
+        flex-direction: column; /* Tumpuk judul & tanggal */
+        align-items: flex-start; /* Rata kiri */
+        gap: var(--spacing-xs);
+    }
+    .main-container.view-list .institute {
+        flex-basis: 100%; /* Institusi ambil baris penuh */
+        text-align: left; /* Rata kiri */
+        margin-top: var(--spacing-sm);
+    }
+    .modal-content {
+        width: 95%;
+        margin: 5vh auto;
+        padding: var(--spacing-lg);
+    }
+    .close-modal, .close-search-modal {
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+    }
 }
 
 @media (max-width: 480px) {
-    html { font-size: 14px; }
-    .container { padding: 0 0.8rem; }
-    .header-top { padding: 0.8rem; }
-    .brand-title { font-size: 1.25rem; }
-    .header-controls { gap: 0.5rem; flex-wrap: wrap; justify-content: flex-end;} /* Wrap controls */
-    .institution-filter { min-width: calc(100% - 90px); height: 38px;} /* Take remaining space */
-    .icon-button, .theme-toggle { width: 38px; height: 38px; font-size: 0.9rem;}
-    .theme-icon { width: 18px; height: 18px;}
-    .view-controls { margin-bottom: 0.8rem; }
-    .view-label { display: none; }
-    .main-content.view-grid #scheduleGrid { gap: 1rem; grid-template-columns: 1fr; }
-    .main-content.view-grid .schedule-card { min-height: auto; }
-    .schedule-card { padding: 1rem; border-radius: var(--radius-md); }
-    .course-title { font-size: 1.1rem; }
-    .date-display { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
-    .participant-tag { font-size: 0.75rem; padding: 0.2rem 0.5rem; }
-    .modal-content { padding: 1.2rem 1rem; }
-    .modal-title { font-size: 1.3rem; margin-bottom: 1rem; }
-    .theme-transition-overlay { top: 18px; right: 18px; width: 38px; height: 38px;}
-    .search-modal-content { padding: 1rem 1.5rem; }
-    .search-modal-content h3 { margin-bottom: 1rem; font-size: 1.2rem;}
-    .search-modal-input { font-size: 0.9rem;}
+    :root {
+        --spacing-md: 12px;
+        --spacing-lg: 16px;
+        --spacing-xl: 24px;
+    }
+    .header-content {
+        padding: 0 var(--spacing-md);
+    }
+    .header-controls {
+        gap: var(--spacing-xs);
+    }
+    .icon-button {
+        width: 36px;
+        height: 36px;
+        font-size: 1em;
+    }
+    .view-controls {
+        margin-left: var(--spacing-xs);
+    }
+    .main-container.view-grid .schedule-grid {
+        grid-template-columns: 1fr; /* Satu kolom di layar sangat kecil */
+    }
+    .schedule-card {
+        padding: var(--spacing-md);
+    }
+    .course-title {
+        font-size: 1.1em;
+    }
+    .participant-tag {
+        font-size: 0.8em;
+    }
 }

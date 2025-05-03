@@ -1,89 +1,97 @@
 <!DOCTYPE html>
-<html lang="id" data-theme="light">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal App</title>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+    <title>Jadwal Kegiatan</title>
+    <!-- Font Awesome (jika digunakan untuk ikon) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Stylesheet Utama -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-    <header class="header">
-        <div class="container header-top">
-            <a href="#" class="brand">
-                <i class="fas fa-calendar-alt brand-icon"></i>
-                <h1 class="brand-title">Jadwal App</h1>
-            </a>
-
+    <header class="site-header">
+        <div class="header-content">
+            <h1>Jadwal Kegiatan</h1>
             <div class="header-controls">
-                 <select id="institutionFilter" class="institution-filter">
-                    <option value="all">Semua Institusi</option>
-                    </select>
-                 <button id="searchButton" class="icon-button search-button" aria-label="Buka pencarian">
+                <button id="themeToggle" class="icon-button" aria-label="Toggle Theme">
+                    <i class="fas fa-sun light-icon"></i>
+                    <i class="fas fa-moon dark-icon"></i>
+                </button>
+                <!-- Filter Dropdown Button -->
+                <div class="filter-dropdown-container">
+                    <button id="filterButton" class="header-button" data-value="all" aria-haspopup="true" aria-expanded="false">
+                        <span>Pilih Kelas</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </button>
+                    <div id="filterDropdownMenu" class="filter-dropdown-menu hidden" role="menu">
+                        <!-- Opsi filter akan ditambahkan oleh JS -->
+                    </div>
+                </div>
+                <button id="searchButton" class="icon-button" aria-label="Search Schedule">
                     <i class="fas fa-search"></i>
                 </button>
-                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
-                    <span class="theme-icon"></span>
-                </button>
+                <div class="view-controls">
+                     <button id="viewGridButton" class="icon-button view-button" aria-label="Grid View">
+                         <i class="fas fa-th-large"></i>
+                     </button>
+                     <button id="viewListButton" class="icon-button view-button" aria-label="List View">
+                         <i class="fas fa-list"></i>
+                     </button>
+                </div>
             </div>
         </div>
     </header>
 
-    <div id="searchModal" class="search-modal">
-        <div class="search-modal-overlay"></div>
-        <div class="search-modal-content">
-            <button class="close-search-modal" aria-label="Tutup pencarian">&times;</button>
-            <h3>Cari Jadwal</h3>
-            <div class="search-modal-input-container">
-                <input type="text" id="searchModalInput" class="search-modal-input" placeholder="Ketik pelajaran, institusi, peserta...">
-                <i class="fas fa-search search-modal-icon"></i>
-            </div>
-        </div>
-    </div>
+    <!-- Kontainer Utama - Kelas view-grid/view-list akan ditambahkan oleh JS -->
+    <main id="mainContent" class="main-container view-grid">
 
-
-    <main id="mainContent" class="main-content container view-grid"> {/* Add ID and default view class */}
-        <div class="view-controls">
-            <span class="view-label">Tampilan:</span>
-            <button id="viewGridButton" class="icon-button view-button active" data-view="grid" aria-label="Tampilan Grid">
-                <i class="fas fa-th-large"></i>
-            </button>
-            <button id="viewListButton" class="icon-button view-button" data-view="list" aria-label="Tampilan Daftar">
-                <i class="fas fa-list"></i>
-            </button>
+        <!-- Grid Jadwal -->
+        <div id="scheduleGrid" class="schedule-grid">
+            <!-- Kartu jadwal akan dirender di sini oleh JS -->
         </div>
 
-        <div id="loading" class="loading">
-             <div class="spinner"></div>
-             <p>Memuat jadwal...</p>
+        <!-- Status Loading -->
+        <div id="loading" class="status-indicator hidden">
+            <div class="spinner"></div>
+            <p>Memuat jadwal...</p>
         </div>
 
-        <div id="emptyState" class="empty-state hidden">
-            </div>
-
-        <div id="scheduleGrid" class="schedule-grid"> {/* Class ini mungkin tidak perlu lagi jika parent yg di-styling */}
-            </div>
+        <!-- Status Kosong -->
+        <div id="emptyState" class="status-indicator hidden">
+            <!-- Konten akan diisi oleh JS -->
+        </div>
     </main>
 
+    <!-- Modal Detail Generik -->
     <div id="genericModal" class="modal">
         <div class="modal-overlay"></div>
         <div class="modal-content">
-            <button class="close-modal" aria-label="Close modal">&times;</button>
-            <h2 id="modalTitle" class="modal-title">Detail Jadwal</h2>
-            <div id="modalBody" class="modal-body">
-                </div>
+            <button class="close-modal icon-button" aria-label="Close Modal">&times;</button>
+            <h2 id="modalTitle">Detail Jadwal</h2>
+            <div id="modalBody" class="modal-body-content">
+                <!-- Konten detail akan diisi oleh JS -->
+            </div>
         </div>
     </div>
 
-    <div class="theme-transition-overlay"></div>
+    <!-- Modal Pencarian -->
+    <div id="searchModal" class="modal search-modal">
+         <div class="search-modal-overlay modal-overlay"></div>
+         <div class="modal-content search-modal-content">
+             <button class="close-search-modal icon-button" aria-label="Close Search">&times;</button>
+             <h2>Cari Jadwal</h2>
+             <input type="search" id="searchModalInput" placeholder="Ketik nama, institusi, mapel...">
+             <!-- Hasil pencarian bisa ditampilkan di sini atau langsung memfilter grid utama -->
+         </div>
+    </div>
 
+    <footer class="site-footer">
+        <p>&copy; 2024 Jadwal Kegiatan Anda. Dibuat dengan ❤️</p>
+    </footer>
+
+    <!-- Script Utama (di akhir body) -->
     <script src="app.js"></script>
 </body>
 </html>
