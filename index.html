@@ -35,23 +35,20 @@
     </header>
 
     <main class="main-content container">
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
+        <div class="loading hidden" id="loading"> <div class="spinner"></div>
             <p>Memuat Jadwal...</p>
         </div>
 
         <section id="scheduleGrid" class="schedule-grid" aria-live="polite">
             </section>
 
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-ghost empty-icon"></i>
+        <div class="empty-state hidden" id="emptyState"> <i class="fas fa-ghost empty-icon"></i>
             <h3>Oops! Jadwal tidak ditemukan</h3>
             <p>Coba kata kunci atau filter yang berbeda.</p>
         </div>
     </main>
 
-    <div class="modal" id="genericModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-        <div class="modal-overlay"></div>
+    <div class="modal" id="genericModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" style="display: none;"> <div class="modal-overlay"></div>
         <div class="modal-content">
             <button class="close-modal" aria-label="Close modal">&times;</button>
             <h3 id="modalTitle" class="modal-title">Detail Jadwal</h3>
