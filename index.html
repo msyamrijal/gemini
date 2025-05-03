@@ -1,64 +1,68 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jadwal Kuliah Interaktif</title>
+    <title>Jadwal App</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+
     <header class="header">
-        <div class="header-top container">
-            <div class="brand">
+        <div class="container header-top">
+            <a href="#" class="brand">
                 <i class="fas fa-calendar-alt brand-icon"></i>
-                <h1 class="brand-title">Jadwal Kuliah</h1>
-            </div>
+                <h1 class="brand-title">Jadwal App</h1>
+            </a>
 
-            <div class="search-filter">
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" class="search-input" placeholder="Cari mata kuliah, peserta...">
+            <div class="header-controls">
+                <div class="search-filter">
+                    <div class="search-container">
+                        <input type="text" id="searchInput" class="search-input" placeholder="Cari pelajaran, institusi, peserta...">
+                        <i class="fas fa-search search-icon"></i>
+                    </div>
+                    <select id="institutionFilter" class="institution-filter">
+                        <option value="all">Semua Institusi</option>
+                        </select>
                 </div>
-                <select id="institutionFilter" class="institution-filter">
-                    <option value="all">Semua Institusi</option>
-                    </select>
+                <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme">
+                    <span class="theme-icon"></span>
+                </button>
             </div>
-
-            <button id="themeToggle" class="theme-toggle" aria-label="Toggle Light/Dark Theme">
-                <span class="theme-icon"></span>
-            </button>
         </div>
     </header>
 
     <main class="main-content container">
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p>Memuat Jadwal...</p>
+        <div id="loading" class="loading">
+             <div class="spinner"></div>
+             <p>Memuat jadwal...</p>
         </div>
 
-        <section id="scheduleGrid" class="schedule-grid" aria-live="polite">
-            </section>
+        <div id="emptyState" class="empty-state hidden">
+            </div>
 
-        <div class="empty-state" id="emptyState">
-            <i class="fas fa-ghost empty-icon"></i>
-            <h3>Oops! Jadwal tidak ditemukan</h3>
-            <p>Coba kata kunci atau filter yang berbeda.</p>
-        </div>
+        <div id="scheduleGrid" class="schedule-grid">
+            </div>
     </main>
 
-    <div class="modal" id="genericModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div id="genericModal" class="modal">
         <div class="modal-overlay"></div>
         <div class="modal-content">
             <button class="close-modal" aria-label="Close modal">&times;</button>
-            <h3 id="modalTitle" class="modal-title">Detail Jadwal</h3>
-            <div class="modal-body" id="modalBody">
+            <h2 id="modalTitle" class="modal-title">Detail Jadwal</h2>
+            <div id="modalBody" class="modal-body">
                 </div>
         </div>
     </div>
+
+    <div class="theme-transition-overlay"></div>
 
     <script src="app.js"></script>
 </body>
