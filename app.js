@@ -1,376 +1,363 @@
 // app.js
-document.addEventListener('DOMContentLoaded', () => {
-    // URL API Google Apps Script
-    const API_URL = 'https://script.google.com/macros/s/AKfycby9sPywic_2ifeYBzE3dQMHfrwkR4-fQv-bNx74HMduvcq5Rr4r9MY6GGEYNqI44WRI/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycby9sPywic_2ifeYBzE3dQMHfrwkR4-fQv-bNx74HMduvcq5Rr4r9MY6GGEYNqI44WRI/exec';
 
-    // Elemen DOM yang sering digunakan
-    const elements = {
-        searchInput: document.getElementById('searchInput'),
-        institutionFilter: document.getElementById('institutionFilter'),
-        scheduleGrid: document.getElementById('scheduleGrid'),
-        loading: document.getElementById('loading'),
-        emptyState: document.getElementById('emptyState'),
-        modal: document.getElementById('genericModal'),
-        modalTitle: document.getElementById('modalTitle'),
-        modalBody: document.getElementById('modalBody'),
-        closeModalBtn: document.querySelector('.close-modal'),
-        modalOverlay: document.querySelector('.modal-overlay'),
-        themeToggleBtn: document.getElementById('themeToggle')
-    };
+// Elemen DOM
+const elements = {
+    searchInput: document.getElementById('searchInput'),
+    institutionFilter: document.getElementById('institutionFilter'),
+    scheduleGrid: document.getElementById('scheduleGrid'),
+    loading: document.getElementById('loading'),
+    emptyState: document.getElementById('emptyState'),
+    modal: document.getElementById('genericModal'),
+    modalTitle: document.getElementById('modalTitle'),
+    modalBody: document.getElementById('modalBody'),
+    closeModalBtn: document.querySelector('.close-modal'),
+    modalOverlay: document.querySelector('.modal-overlay'),
+    themeToggleBtn: document.getElementById('themeToggle')
+};
 
-    // Menyimpan semua data jadwal setelah diambil
-    let allSchedules = [];
-    // Menyimpan timeout ID untuk debounce pencarian
-    let searchDebounceTimeout;
+let allSchedules = [];
+let initialLoad = true; // Flag for initial load animation
 
-    // ======================
-    // MANAJEMEN TEMA (TERANG/GELAP)
-    // ======================
-    const initTheme = () => {
-        // Mendapatkan tema tersimpan atau preferensi sistem
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-        document.documentElement.setAttribute('data-theme', savedTheme);
-    };
+// ======================
+// THEME MANAGEMENT
+// ======================
+const initTheme = () => {
+    const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    updateThemeIcon(savedTheme);
+};
 
-    const toggleTheme = () => {
-        // Mengganti tema saat ini
-        const currentTheme = document.documentElement.getAttribute('data-theme');
-        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', newTheme);
-        localStorage.setItem('theme', newTheme); // Simpan tema baru
-    };
+const toggleTheme = () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    updateThemeIcon(newTheme);
+};
 
-    // ======================
-    // MANAJEMEN DATA
-    // ======================
-    const fetchData = async () => {
-        showLoading(); // Tampilkan indikator loading
-        hideEmptyState(); // Sembunyikan pesan kosong
-        elements.scheduleGrid.style.opacity = '0'; // Sembunyikan grid saat loading
+const updateThemeIcon = (theme) => {
+    const themeIcon = elements.themeToggleBtn.querySelector('.theme-icon');
+    // Style changes handled by CSS based on data-theme attribute
+    // Optional: Add class for animation control if needed
+    // themeIcon.style.transform = theme === 'dark' ? 'rotate(40deg)' : 'rotate(0deg)'; // Handled by CSS now
+};
 
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) {
-                // Tangani jika request API gagal
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0); // Set ke awal hari ini
-
-            // Proses dan filter data:
-            // 1. Pastikan field penting ada dan tanggal valid
-            // 2. Konversi tanggal string ke objek Date untuk sorting/filtering
-            // 3. Filter jadwal yang sudah lewat
-            // 4. Urutkan berdasarkan tanggal terdekat
-            allSchedules = data
-                .filter(item =>
-                    item.Tanggal && item.Institusi && item.Mata_Pelajaran && Array.isArray(item.Peserta) && !isNaN(new Date(item.Tanggal).getTime())
-                )
-                .map(item => ({ ...item, TanggalDate: new Date(item.Tanggal) }))
-                .filter(item => item.TanggalDate >= today)
-                .sort((a, b) => a.TanggalDate - b.TanggalDate);
-
-            initFilters(); // Inisialisasi opsi filter institusi
-            filterSchedules(); // Render jadwal awal berdasarkan filter default
-
-        } catch (error) {
-            console.error('Fetch Error:', error);
-            showError('Gagal memuat data jadwal. Periksa koneksi Anda atau coba lagi nanti.');
-        } finally {
-            hideLoading(); // Sembunyikan indikator loading
-            elements.scheduleGrid.style.opacity = '1'; // Tampilkan grid setelah selesai
+// ======================
+// DATA MANAGEMENT
+// ======================
+const fetchData = async () => {
+    try {
+        showLoading();
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    };
+        const data = await response.json();
 
-    // ======================
-    // SISTEM FILTER
-    // ======================
-    const initFilters = () => {
-        // Dapatkan daftar institusi unik dan urutkan
-        const institutions = [...new Set(allSchedules.map(item => item.Institusi))].sort((a, b) => a.localeCompare(b));
-        const filterSelect = elements.institutionFilter;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Set to beginning of today
 
-        // Kosongkan opsi lama (kecuali opsi default "Semua Institusi")
-        filterSelect.length = 1;
+        // Process and sort data
+        allSchedules = data
+            .filter(item => {
+                // Basic validation: Ensure essential fields exist and date is valid
+                return item.Tanggal && item.Institusi && item.Mata_Pelajaran && item.Peserta && !isNaN(new Date(item.Tanggal).getTime());
+            })
+            .map(item => ({ ...item, TanggalDate: new Date(item.Tanggal) })) // Pre-convert date for sorting/filtering
+            .filter(item => item.TanggalDate >= today)
+            .sort((a, b) => a.TanggalDate - b.TanggalDate);
 
-        // Tambahkan opsi institusi baru
-        const fragment = document.createDocumentFragment();
-        institutions.forEach(inst => {
-            const option = document.createElement('option');
-            option.value = inst;
-            option.textContent = inst;
-            fragment.appendChild(option);
-        });
-        filterSelect.appendChild(fragment);
-    };
+        initFilters();
+        filterSchedules(); // Initial render based on default filters
+        attachDynamicListeners();
 
-    const filterSchedules = () => {
-        // Dapatkan nilai filter saat ini
-        const searchTerm = elements.searchInput.value.toLowerCase().trim();
-        const selectedInstitution = elements.institutionFilter.value;
+    } catch (error) {
+        console.error('Fetch Error:', error);
+        showError('Gagal memuat data jadwal. Periksa koneksi Anda atau coba lagi nanti.');
+    } finally {
+        hideLoading();
+        initialLoad = false; // Mark initial load as complete
+    }
+};
 
-        // Filter data jadwal
-        const filtered = allSchedules.filter(item => {
-            // Gabungkan teks yang relevan untuk pencarian
-            const searchableText = [
-                item.Institusi,
-                item.Mata_Pelajaran,
-                item.Peserta.join(' ')
-            ].join(' ').toLowerCase();
+// ======================
+// FILTER SYSTEM
+// ======================
+const initFilters = () => {
+    // Use a Set for unique institutions and sort them alphabetically
+    const institutions = [...new Set(allSchedules.map(item => item.Institusi))].sort((a, b) => a.localeCompare(b));
+    const filterSelect = elements.institutionFilter;
 
-            // Cek kecocokan dengan kata kunci pencarian
-            const matchesSearch = searchTerm === '' || searchableText.includes(searchTerm);
-            // Cek kecocokan dengan filter institusi
-            const matchesInstitution = selectedInstitution === 'all' || item.Institusi === selectedInstitution;
+    // Clear existing options (except the default "Semua Institusi")
+    filterSelect.length = 1; // Keep the first option
 
-            return matchesSearch && matchesInstitution;
-        });
+    // Add new options
+    institutions.forEach(inst => {
+        const option = document.createElement('option');
+        option.value = inst;
+        option.textContent = inst;
+        filterSelect.appendChild(option);
+    });
 
-        renderSchedules(filtered); // Render ulang jadwal dengan data terfilter
-    };
+    // Add event listeners only once
+    if (!filterSelect.dataset.listenerAttached) {
+        elements.searchInput.addEventListener('input', debounce(filterSchedules, 300)); // Debounce search input
+        filterSelect.addEventListener('change', filterSchedules);
+        filterSelect.dataset.listenerAttached = 'true';
+    }
+};
 
-    // Fungsi Debounce untuk membatasi frekuensi pemanggilan filter saat mengetik
-    const debounce = (func, wait) => {
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(searchDebounceTimeout);
-                func.apply(this, args);
-            };
-            clearTimeout(searchDebounceTimeout);
-            searchDebounceTimeout = setTimeout(later, wait);
-        };
-    };
+const filterSchedules = () => {
+    const searchTerm = elements.searchInput.value.toLowerCase().trim();
+    const selectedInstitution = elements.institutionFilter.value;
 
-    // Event listener untuk input pencarian dengan debounce
-    elements.searchInput.addEventListener('input', debounce(filterSchedules, 300));
-    // Event listener untuk perubahan filter institusi
-    elements.institutionFilter.addEventListener('change', filterSchedules);
+    const filtered = allSchedules.filter(item => {
+        // Combine relevant fields into a single string for searching
+        const searchableText = [
+            item.Institusi,
+            item.Mata_Pelajaran,
+            item.Peserta.join(' ')
+            // Optionally add formatted date if needed for search
+        ].join(' ').toLowerCase();
 
+        const matchesSearch = searchTerm === '' || searchableText.includes(searchTerm);
+        const matchesInstitution = selectedInstitution === 'all' || item.Institusi === selectedInstitution;
 
-    // ======================
-    // RENDER TAMPILAN
-    // ======================
-    const renderSchedules = (data) => {
-        elements.scheduleGrid.innerHTML = ''; // Kosongkan grid
+        return matchesSearch && matchesInstitution;
+    });
 
-        if (data.length === 0) {
-            // Jika tidak ada data, tampilkan pesan kosong
-            showEmptyState();
-            hideLoading();
-            elements.scheduleGrid.style.display = 'none'; // Sembunyikan grid
-        } else {
-            // Jika ada data, tampilkan grid dan sembunyikan pesan kosong/loading
-            hideEmptyState();
-            hideLoading();
-            elements.scheduleGrid.style.display = 'grid'; // Tampilkan grid
+    renderSchedules(filtered);
+};
 
-            // Gunakan DocumentFragment untuk efisiensi DOM manipulation
-            const fragment = document.createDocumentFragment();
-            data.forEach(item => {
-                const card = createScheduleCard(item);
-                fragment.appendChild(card);
-            });
-            elements.scheduleGrid.appendChild(fragment);
-        }
-    };
+// ======================
+// RENDERING
+// ======================
+const renderSchedules = (data) => {
+    elements.scheduleGrid.innerHTML = ''; // Clear previous results
 
-    // Membuat elemen HTML untuk satu kartu jadwal
-    const createScheduleCard = (item) => {
-        const card = document.createElement('article');
-        card.className = 'schedule-card';
-        // Tambahkan data-* attribute untuk identifikasi saat diklik
-        card.innerHTML = `
+    if (data.length === 0) {
+        showEmptyState();
+        hideLoading(); // Ensure loading is hidden
+        return;
+    }
+
+    hideEmptyState();
+    hideLoading(); // Ensure loading is hidden
+
+    const fragment = document.createDocumentFragment();
+    data.forEach(item => {
+        const card = createScheduleCard(item);
+        fragment.appendChild(card);
+    });
+    elements.scheduleGrid.appendChild(fragment);
+};
+
+const createScheduleCard = (item) => {
+    const card = document.createElement('article');
+    card.className = 'schedule-card';
+    card.innerHTML = `
+        <div class="card-header">
+            <h3 class="course-title clickable" data-entity="Mata_Pelajaran">${item.Mata_Pelajaran}</h3>
+            <span class="date-display clickable" data-entity="Tanggal">${formatDate(item.Tanggal)}</span>
+        </div>
+        <div class="institute clickable" data-entity="Institusi">${item.Institusi}</div>
+        <div class="participants">
+            ${item.Peserta.map(peserta => `
+                <span class="participant-tag clickable" data-entity="Peserta">${peserta}</span>
+            `).join('')}
+        </div>
+    `;
+    return card;
+};
+
+// ======================
+// MODAL SYSTEM
+// ======================
+const showGenericModal = (title, data) => {
+    elements.modalTitle.textContent = title;
+    elements.modalBody.innerHTML = generateModalContent(data);
+    elements.modal.style.display = 'block'; // Show modal
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    // Focus management could be added here for accessibility
+};
+
+const hideModal = () => {
+    elements.modal.style.display = 'none';
+    document.body.style.overflow = ''; // Restore background scrolling
+};
+
+const generateModalContent = (data) => {
+    if (!data || data.length === 0) {
+        return '<p class="no-data">Tidak ada data jadwal terkait yang ditemukan.</p>';
+    }
+
+    return data.map(item => `
+        <div class="modal-item">
             <div class="card-header">
-                <h3 class="course-title clickable" data-entity-type="Mata_Pelajaran" data-entity-value="${item.Mata_Pelajaran}">${item.Mata_Pelajaran}</h3>
-                <span class="date-display clickable" data-entity-type="Tanggal" data-entity-value="${item.Tanggal}">${formatDate(item.TanggalDate)}</span>
+                <h4 class="course-title">${item.Mata_Pelajaran}</h4>
             </div>
-            <div class="institute clickable" data-entity-type="Institusi" data-entity-value="${item.Institusi}">${item.Institusi}</div>
+             <div class="modal-meta">
+                <span class="institute">${item.Institusi}</span>
+                <span class="date-display">${formatDate(item.Tanggal)}</span>
+            </div>
             <div class="participants">
-                ${item.Peserta.map(peserta => `
-                    <span class="participant-tag clickable" data-entity-type="Peserta" data-entity-value="${peserta}">${peserta}</span>
-                `).join('')}
+                ${item.Peserta.map(p => `<span class="participant-tag">${p}</span>`).join('')}
             </div>
-        `;
-        return card;
-    };
+        </div>
+    `).join('');
+};
 
-    // ======================
-    // SISTEM MODAL
-    // ======================
-    const showGenericModal = (title, data) => {
-        elements.modalTitle.textContent = title;
-        elements.modalBody.innerHTML = generateModalContent(data);
-        elements.modal.classList.add('active'); // Tampilkan modal dengan class 'active'
-        document.body.style.overflow = 'hidden'; // Cegah scroll background
-    };
+// ======================
+// EVENT HANDLERS
+// ======================
+const handleEntityClick = (element) => {
+    const entityType = element.dataset.entity;
+    const value = element.textContent;
+    let filterProperty = entityType;
+    let modalTitlePrefix = '';
 
-    const hideModal = () => {
-        elements.modal.classList.remove('active'); // Sembunyikan modal
-        document.body.style.overflow = ''; // Kembalikan scroll background
-    };
+    // Prepare data based on clicked entity
+    let filteredData;
+    if (entityType === 'Peserta') {
+        filteredData = allSchedules.filter(item => item.Peserta.includes(value));
+        modalTitlePrefix = `Jadwal untuk ${value}`;
+    } else if (entityType === 'Tanggal') {
+        // Match by formatted date string if needed, or re-filter by date object
+         const clickedDateStr = formatDate(value); // Assuming value is a parseable date string initially
+         filteredData = allSchedules.filter(item => formatDate(item.Tanggal) === clickedDateStr);
+         modalTitlePrefix = `Jadwal pada ${value}`;
+    }
+     else { // Mata_Pelajaran or Institusi
+        filteredData = allSchedules.filter(item => item[filterProperty] === value);
+        modalTitlePrefix = `Jadwal ${value}`;
+    }
 
-    // Membuat konten HTML untuk isi modal
-    const generateModalContent = (data) => {
-        if (!data || data.length === 0) {
-            return '<p class="no-data">Tidak ada data jadwal terkait yang ditemukan.</p>';
-        }
+    // Filter out past schedules for the modal view as well (optional, depends on desired behavior)
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const futureFilteredData = filteredData.filter(item => item.TanggalDate >= today);
 
-        // Urutkan data dalam modal berdasarkan tanggal (jika belum terurut)
-        const sortedData = data.sort((a, b) => a.TanggalDate - b.TanggalDate);
 
-        return sortedData.map(item => `
-            <div class="modal-item">
-                <div class="card-header">
-                    <h4 class="course-title">${item.Mata_Pelajaran}</h4>
-                </div>
-                 <div class="modal-meta">
-                    <span class="institute">${item.Institusi}</span>
-                    <span class="date-display">${formatDate(item.TanggalDate)}</span>
-                </div>
-                <div class="participants">
-                    ${item.Peserta.map(p => `<span class="participant-tag">${p}</span>`).join('')}
-                </div>
-            </div>
-        `).join('');
-    };
+    showGenericModal(modalTitlePrefix, futureFilteredData);
+};
 
-    // ======================
-    // EVENT HANDLERS (PENANGANAN EVENT)
-    // ======================
 
-    // Menggunakan event delegation pada body untuk menangani klik pada elemen dinamis
+// Use event delegation for dynamically added elements
+const attachDynamicListeners = () => {
     document.body.addEventListener('click', (e) => {
         const target = e.target;
 
-        // Klik pada elemen yang bisa diklik di kartu (mata kuliah, tanggal, institusi, peserta)
-        if (target.classList.contains('clickable') && target.dataset.entityType) {
+        // Handle clicks on clickable entities within cards or modal
+        if (target.classList.contains('clickable') && target.dataset.entity) {
             handleEntityClick(target);
         }
 
-        // Klik pada overlay modal atau tombol close
+        // Close modal logic
         if (target === elements.modalOverlay || target === elements.closeModalBtn || target.closest('.close-modal')) {
              hideModal();
         }
     });
+};
 
-    // Menangani klik pada entitas (mata kuliah, tanggal, dll.)
-    const handleEntityClick = (element) => {
-        const entityType = element.dataset.entityType;
-        const value = element.dataset.entityValue;
-        let modalTitlePrefix = '';
-        let filteredData;
+// ======================
+// UTILITIES
+// ======================
+const formatDate = (dateString) => {
+    // Check if dateString is already a Date object (from processing)
+    const date = (dateString instanceof Date) ? dateString : new Date(dateString);
 
-        // Filter data berdasarkan entitas yang diklik
-        switch (entityType) {
-            case 'Peserta':
-                filteredData = allSchedules.filter(item => item.Peserta.includes(value));
-                modalTitlePrefix = `Jadwal untuk ${value}`;
-                break;
-            case 'Tanggal':
-                 // Filter berdasarkan tanggal asli (bukan string format)
-                const clickedDate = new Date(value);
-                clickedDate.setHours(0,0,0,0);
-                filteredData = allSchedules.filter(item => {
-                    const itemDate = new Date(item.TanggalDate);
-                    itemDate.setHours(0,0,0,0);
-                    return itemDate.getTime() === clickedDate.getTime();
-                });
-                modalTitlePrefix = `Jadwal pada ${formatDate(clickedDate)}`; // Gunakan tanggal format untuk judul
-                break;
-            case 'Mata_Pelajaran':
-            case 'Institusi':
-            default:
-                filteredData = allSchedules.filter(item => item[entityType] === value);
-                modalTitlePrefix = `Jadwal ${value}`;
-                break;
-        }
+    if (isNaN(date.getTime())) {
+        return 'Tanggal tidak valid'; // Handle invalid date strings
+    }
 
-        // Filter lagi untuk hanya menampilkan jadwal mendatang di modal
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const futureFilteredData = filteredData.filter(item => item.TanggalDate >= today);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const inputDateOnly = new Date(date);
+    inputDateOnly.setHours(0, 0, 0, 0);
 
-        showGenericModal(modalTitlePrefix, futureFilteredData);
+    const options = {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: (inputDateOnly.getFullYear() !== today.getFullYear()) ? 'numeric' : undefined
     };
+    return inputDateOnly.toLocaleDateString('id-ID', options);
+};
 
-    // Listener untuk tombol tema
+const showLoading = () => {
+    elements.loading.classList.remove('hidden');
+    elements.loading.style.display = 'flex'; // Ensure display is correct
+    elements.emptyState.classList.add('hidden');
+    elements.scheduleGrid.style.display = 'none'; // Hide grid while loading
+};
+
+const hideLoading = () => {
+    elements.loading.classList.add('hidden');
+     elements.loading.style.display = 'none';
+     elements.scheduleGrid.style.display = 'grid'; // Show grid again
+};
+
+const showEmptyState = () => {
+    elements.emptyState.classList.remove('hidden');
+    elements.emptyState.style.display = 'flex'; // Ensure display is correct
+    elements.scheduleGrid.style.display = 'none'; // Hide grid
+    elements.emptyState.innerHTML = `
+        <i class="fas fa-ghost empty-icon"></i>
+        <h3>Oops! Jadwal tidak ditemukan</h3>
+        <p>Coba kata kunci atau filter yang berbeda.</p>
+    `;
+};
+
+const hideEmptyState = () => {
+    elements.emptyState.classList.add('hidden');
+     elements.emptyState.style.display = 'none';
+};
+
+const showError = (message = 'Terjadi kesalahan.') => {
+    hideLoading();
+    elements.scheduleGrid.style.display = 'none'; // Hide grid on error
+    elements.emptyState.classList.remove('hidden');
+    elements.emptyState.style.display = 'flex';
+    elements.emptyState.innerHTML = `
+        <i class="fas fa-exclamation-triangle empty-icon" style="color: #e74c3c;"></i>
+        <h3>Terjadi Kesalahan</h3>
+        <p>${message}</p>
+    `;
+};
+
+// Debounce function to limit frequency of function calls (e.g., on search input)
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+
+// ======================
+// INITIALIZATION
+// ======================
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    fetchData(); // Fetch data after DOM is loaded
+
+    // Static event listeners
     elements.themeToggleBtn.addEventListener('click', toggleTheme);
 
-    // Listener untuk menutup modal dengan tombol Escape
+    // Modal closing listeners (already handled by delegation in attachDynamicListeners)
+    // elements.closeModalBtn.addEventListener('click', hideModal);
+    // elements.modalOverlay.addEventListener('click', hideModal); // Click outside modal content
+
+    // Close modal with Escape key
      window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && elements.modal.classList.contains('active')) {
+        if (e.key === 'Escape' && elements.modal.style.display === 'block') {
             hideModal();
         }
     });
-
-    // ======================
-    // UTILITAS (FUNGSI BANTU)
-    // ======================
-    const formatDate = (date) => {
-        // Terima objek Date secara langsung
-        if (!(date instanceof Date) || isNaN(date.getTime())) {
-            return 'Tanggal tidak valid';
-        }
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const inputDateOnly = new Date(date);
-        inputDateOnly.setHours(0, 0, 0, 0);
-
-        // Opsi format tanggal Indonesia
-        const options = {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            year: (inputDateOnly.getFullYear() !== today.getFullYear()) ? 'numeric' : undefined
-        };
-        return inputDateOnly.toLocaleDateString('id-ID', options);
-    };
-
-    // Menampilkan/menyembunyikan indikator loading
-    const showLoading = () => {
-        elements.loading.classList.add('active');
-        elements.loading.classList.remove('hidden'); // Pastikan tidak hidden
-    };
-    const hideLoading = () => {
-        elements.loading.classList.remove('active');
-        elements.loading.classList.add('hidden'); // Tambahkan hidden untuk kepastian
-    };
-
-    // Menampilkan/menyembunyikan pesan state kosong
-    const showEmptyState = () => {
-        elements.emptyState.classList.add('active');
-         elements.emptyState.classList.remove('hidden');
-        elements.emptyState.innerHTML = `
-            <i class="fas fa-ghost empty-icon"></i>
-            <h3>Oops! Jadwal tidak ditemukan</h3>
-            <p>Coba kata kunci atau filter yang berbeda.</p>
-        `;
-    };
-     const hideEmptyState = () => {
-        elements.emptyState.classList.remove('active');
-        elements.emptyState.classList.add('hidden');
-    };
-
-    // Menampilkan pesan error
-    const showError = (message = 'Terjadi kesalahan.') => {
-        hideLoading();
-        elements.scheduleGrid.style.display = 'none'; // Sembunyikan grid saat error
-        elements.emptyState.classList.add('active');
-        elements.emptyState.classList.remove('hidden');
-        elements.emptyState.innerHTML = `
-            <i class="fas fa-exclamation-triangle empty-icon" style="color: #e74c3c;"></i>
-            <h3>Terjadi Kesalahan</h3>
-            <p>${message}</p>
-        `;
-    };
-
-    // ======================
-    // INISIALISASI APLIKASI
-    // ======================
-    initTheme(); // Set tema awal saat load
-    fetchData(); // Ambil data jadwal
-
-}); // Akhir dari DOMContentLoaded
+});
